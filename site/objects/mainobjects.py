@@ -31,3 +31,64 @@ class Server(DatabaseBase):
     path_to_pic = Column(String)
     path_to_technic = Column(String)
     minecraft_version = Column(String)
+
+class ServerPlayerMapping(DatabaseBase):
+    __tablename__ = "MinecraftPlayers"
+    id = Column(String(36), primary_key=True)
+    minecraft_name = Column(String)
+    minecraft_guid = Column(String(36))
+    user_id = Column(String(36)) #User.id
+    server_id = Column(String(36)) #Server.id
+
+class ServerActivityLog(DatabaseBase):
+    __tablename__ = "ServerActivityLogs"
+    id = Column(String(36), primary_key=True)
+    action = Column(String)
+	server_player_mapping_id = Column(String(36)) #ServerPLayerMapping.id
+# Actions:
+#  - PlayerLoggedOn
+#  - PLayerLoggedOff
+#  - PlayerKilledPLayer
+#  - PLayerDied
+#  - Server Started
+#  - Server Quit
+#  - Server Crashed
+
+class Mod(DatabaseBase):
+    __tablename__ = "Mods"
+    id = Column(String(36), primary_key=True)
+    name = Column(String)
+    version = Column(String)
+	server_id = Column(String(36))
+
+class Update(DatabaseBase):
+    __tablename__ = "Updates"
+    id = Column(String(36), primary_key=True)
+	title = Column(String)
+	desc = Column(String)
+	for_server = Column(Boolean(), default=False)
+	server_id = Column(String(36))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#################### End of File ######################
