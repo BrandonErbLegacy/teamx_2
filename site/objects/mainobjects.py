@@ -23,6 +23,34 @@ class User(DatabaseBase):
     is_admin = Column(Boolean(), default=False) #Admin privs only
     is_superuser = Column(Boolean(), default=False) #All admin privs, plus can make admins
 
+	def RegisterUser(username, password, display_name, first_name, last_name, email):
+		pass
+
+	def LogUserIn(username, password):
+		pass
+
+	def UpdateUser(username, password, display_name, first_name, last_name, email):
+		pass
+
+class Session(Data)
+    __tablename__ = "Users"
+
+    id = Column(String(36), primary_key=True)
+	user_id = Column(String(36) #User.id
+	#expiration_date =
+
+	def CreateSession(user_object, ip_address):
+		pass
+
+	def ValidateSession(session_object, ip_address):
+		pass
+
+	def DeleteSession(session_object):
+		pass
+
+	def GetUserBySession(session_object):
+		pass
+
 class Server(DatabaseBase):
     __tablename__ = "Servers"
 
@@ -32,6 +60,12 @@ class Server(DatabaseBase):
     path_to_technic = Column(String)
     minecraft_version = Column(String)
 
+	def AddServer(name, path_to_pic, path_to_technic, minecraft_version):
+		pass
+
+	def UpdateServer(name, path_to_pic, path_to_technic, minecraft_version):
+		pass
+
 class ServerPlayerMapping(DatabaseBase):
     __tablename__ = "MinecraftPlayers"
     id = Column(String(36), primary_key=True)
@@ -40,11 +74,20 @@ class ServerPlayerMapping(DatabaseBase):
     user_id = Column(String(36)) #User.id
     server_id = Column(String(36)) #Server.id
 
+	def AddServerPlayerMapping(minecraft_name, minecraft_guid, user_object, server_object):
+		pass
+
+	def UpdateServerPlayerMapping(server_player_mapping_object, server_object):
+		pass
+
 class ServerActivityLog(DatabaseBase):
     __tablename__ = "ServerActivityLogs"
     id = Column(String(36), primary_key=True)
     action = Column(String)
 	server_player_mapping_id = Column(String(36)) #ServerPLayerMapping.id
+
+	def AddServerActivityLog(action, server_player_mapping_object=None):
+		pass
 # Actions:
 #  - PlayerLoggedOn
 #  - PLayerLoggedOff
@@ -60,6 +103,8 @@ class Mod(DatabaseBase):
     name = Column(String)
     version = Column(String)
 	server_id = Column(String(36))
+	def AddMod(name, version, server_object):
+		pass
 
 class Update(DatabaseBase):
     __tablename__ = "Updates"
@@ -69,6 +114,14 @@ class Update(DatabaseBase):
 	for_server = Column(Boolean(), default=False)
 	server_id = Column(String(36))
 
+	def AddUpdate(title, desc, for_server, server_object):
+		pass
+
+	def UpdateUpdate(update_object, title, desc):
+		pass
+
+	def DeleteUpdate(update_object):
+		pass
 
 
 
