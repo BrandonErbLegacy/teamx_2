@@ -9,17 +9,30 @@
         <link href="{{ url_for('static', filename='vendor/bootstrap_dark/css/bootstrap.dark.css') }}" rel="stylesheet"/>
         <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet"/>
         <script type="text/javascript" src="{{ url_for('static', filename='vendor/jquery/js/jQuery-3.3.1.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     </head>
     <body>
       <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-small">
         <div class="container">
 
-          <a class="navbar-brand" href="#">TeamX</a>
+          <a class="navbar-brand" href="index">TeamX</a>
           <div class="my-2 my-lg-0">
+            {% if user != None %}
+            <span class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{ user.display_name }}
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="#">Placeholder</a>
+                <a class="dropdown-item" href="#">Placeholder</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="/logout">Logout</a>
+              </div>
+            </span>
+            {% else %}
             <a href="register"><button class="btn btn-outline-success" type="button">Register</button></a>
             <a href="login"><button class="btn btn-outline-success" type="button">Login</button></a>
+            {% endif %}
           </div>
         </div>
       </nav>

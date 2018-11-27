@@ -1,6 +1,17 @@
 .centered-form-wrapper {
-  max-width: 600px;
-  border: 1px solid #FFF;
+  max-width: 500px;
+  border: 1px solid #333;
   margin: auto;
   margin-top: 20px;
+  padding: 10px;
 }
+.solid-background {
+   background-color: #303030 !important;
+   padding: 10px;
+}
+.server-card-mini img {
+  max-height: 150px;
+}
+ .uniform-form-prepend {
+   width: 150px;
+ }
