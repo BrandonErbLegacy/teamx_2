@@ -1,0 +1,81 @@
+{% extends "core.html" %}
+
+{% block content %}
+  <link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet"/>
+  <div class="centered-form-wrapper">
+    <h2 class="text-center">Log in</h2>
+    <hr />
+    <span class="form-group">
+      <p>Username</p><input type="text" class="form-control bg-light text-dark" placeholder="Type username here..." id="username"/>
+    </span>
+    <span class="form-group">
+      <p>Password</p><input type="password" class="form-control bg-light text-dark" placeholder="Your super secret password here" id="password"/>
+    </span>
+    <button class="btn btn-primary form-control" onclick="attempt_log_in()" id="loginbutton">
+      Log in
+    </button>
+    <div class="alert alert-danger my-2 d-none" role="alert" id="alert">
+      Insert message here
+    </div>
+    <script>
+
+      $("#username").keypress(function(event){
+        if (event.keyCode == 13){
+          if (button_enabled){
+            attempt_log_in();
+          }
+        }
+      });
+      $("#password").keypress(function(event){
+        if (event.keyCode == 13){
+          if (button_enabled){
+            attempt_log_in();
+          }
+        }
+      });
+
+
+      var button_enabled = true;
+      function attempt_log_in(){
+        if (button_enabled == false){
+          return;
+        }
+        username = $("#username").val()
+        password = $("#password").val()
+        alert_div = $("#alert");
+        if (username == ""){
+          alert_div.text("The username field cannot be blank");
+          alert_div.removeClass("d-none");
+          return;
+        }
+        if (password == "") {
+          alert_div.text("The password field cannot be blank");
+          alert_div.removeClass("d-none");
+          return;
+        }
+        console.log("GOING");
+        alert_div.addClass("d-none");
+        $("#loginbutton").addClass("disabled");
+        button_enabled = false;
+        $.post({
+          url: "api/authentication/user",
+          type: "POST",
+          error: function(data){
+            alert_div.text(data.responseText);
+            alert_div.removeClass("d-none");
+            $("#loginbutton").removeClass("disabled");
+            button_enabled = true;
+          },
+          success: function(data){
+            document.cookie = "teamx_session="+data;
+            document.location = "/";
+          },
+          data: {
+            "username": username,
+            "password": password
+          }
+        })
+      }
+    </script>
+  </div>
+{% endblock %}

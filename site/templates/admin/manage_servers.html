@@ -1,0 +1,109 @@
+{% extends "admin/admin_core.html" %}
+
+{% block admin_content %}
+<link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet"/>
+<div class="container my-4">
+  <div class="row">
+    <h2 class="col-12">
+      Servers
+    </h2>
+  </div>
+  <div class="row">
+    <p class="alert bg-primary my-2">
+      Please note that all servers must first be set up on the physical machine by someone with an SSH account to the machine. Afterward it must have the NightWraid.utilities mod installed in order to talk to our website.
+    </p>
+  </div>
+  <div class="row">
+    <table class="table table-light table-hover" id="user-table">
+      <thead>
+        <tr>
+          <th colspan="6">
+            <button class="btn-success btn float-right" data-toggle="modal" data-target="#create-server-modal">Add Server</button>
+          </th>
+        </tr>
+        <tr>
+          <th>Server Name</th>
+          <th>Status</th>
+          <th>Load</th>
+          <th>Address</th>
+          <th>View</th>
+          <th>Edit</th>
+        </tr>
+      </thead>
+    </table>
+  </div>
+</div>
+<div class="modal" id="create-server-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Required Info</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text uniform-form-prepend" id="server_name_ig">Server Name</span>
+              </div>
+              <input type="text" class="form-control bg-light text-dark" aria-label="Server Name" aria-describedby="server_name_ig" id="server_name" placeholder="This is what the server is called">
+            </div>
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text uniform-form-prepend" id="technic_pack_url_ig">Technic Pack URL</span>
+              </div>
+              <input type="text" class="form-control bg-light text-dark" aria-label="Technic Pack URL" aria-describedby="technic_pack_url_ig" id="technic_pack_url" placeholder="Leave this blank if it's vanilla">
+            </div>
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text uniform-form-prepend" id="server_address_ig">Server Address</span>
+              </div>
+              <input type="text" class="form-control bg-light text-dark" aria-label="Server Address" aria-describedby="server_address_ig" id="server_address" placeholder="e.x. endofdays.teamx.gdn:25567">
+            </div>
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text uniform-form-prepend" id="server_image_ig">Server Image</span>
+              </div>
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" id="customFile">
+                <label class="custom-file-label bg-light text-dark" for="customFile">Choose file</label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Create</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script>
+  console.log("Setting up");
+  $(document).on('change', ':file', function() {
+      var input = $(this),
+          numFiles = input.get(0).files ? input.get(0).files.length : 1,
+          label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+      input.trigger('fileselect', [numFiles, label]);
+  });
+
+  function open_modal(){
+
+  }
+  function validate_modal(){
+
+  }
+  function create_server(){
+
+  }
+</script>
+{% endblock admin_content %}
