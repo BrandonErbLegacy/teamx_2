@@ -71,6 +71,16 @@ class User(DatabaseBase):
 		else:
 			return None
 
+	def GetAllUsers(session):
+		all_users = session.query(User).all()
+		#Manually converts to json. Can't do this for large numbers of results.
+		#Will need to be changed eventually.
+		json = "["
+		for user in all_users:
+			json = json + ('{"username":"%s", "display_name":"%s", "email":"%s", "last_seen":"%s"}, '%(user.username, user.display_name, user.email, user.last_seen))
+		json = json[:-2] + "]"
+		return json
+
 	def UpdateUser(session, username, password, display_name, first_name, last_name, email):
 		pass
 
@@ -119,9 +129,25 @@ class Server(DatabaseBase):
 	path_to_pic = Column(String)
 	path_to_technic = Column(String)
 	minecraft_version = Column(String)
+	address = Column(String)
 
-	def AddServer(session, name, path_to_pic, path_to_technic, minecraft_version):
-		pass
+	def AddServer(session, name, path_to_pic, path_to_technic, minecraft_version, address):
+		if session.query(Server).filter(Server.name == name).first() != None:
+			raise RecordExists("", "name")
+		server = Server()
+		server.name = name
+		server.path_to_pic = path_to_pic
+		server.path_to_technic = path_to_technic
+		server.minecraft_version = minecraft_version
+		server.address = address
+		server.id = new_uuid()
+
+		session.add(server)
+		session.commit()
+		return server
+
+	def GetAll(session):
+		return session.query(Server).all()
 
 	def UpdateServer(session, name, path_to_pic, path_to_technic, minecraft_version):
 		pass

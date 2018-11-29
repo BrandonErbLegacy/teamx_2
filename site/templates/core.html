@@ -16,22 +16,40 @@
         <div class="container">
 
           <a class="navbar-brand" href="index">TeamX</a>
+          <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+              <a class="nav-item nav-link" href="/servers">Servers</a>
+              <a class="nav-item nav-link" href="/forum">Forums</a>
+              <a class="nav-item nav-link" href="/about">About us</a>
+              <a class="nav-item nav-link" href="/contact">Contact us</a>
+              <a class="nav-item nav-link" href="/faq">FAQ</a>
+              <a class="nav-item nav-link" href="/donate">Donate</a>
+            </div>
+          </div>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
           <div class="my-2 my-lg-0">
             {% if user != None %}
             <span class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <a class="nav-link dropdown-toggle text-dark" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 {{ user.display_name }}
               </a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <a class="dropdown-item" href="#">Placeholder</a>
                 <a class="dropdown-item" href="#">Placeholder</a>
                 <div class="dropdown-divider"></div>
+
+                {% if user.is_admin or user.is_superuser %}
+                <a class="dropdown-item" href="/admin">Admin Panel</a>
+                <div class="dropdown-divider"></div>
+                {% endif %}
                 <a class="dropdown-item" href="/logout">Logout</a>
               </div>
             </span>
             {% else %}
-            <a href="register"><button class="btn btn-outline-success" type="button">Register</button></a>
-            <a href="login"><button class="btn btn-outline-success" type="button">Login</button></a>
+              <a href="register"><button class="btn btn-primary" type="button">Register</button></a>
+              <a href="login"><button class="btn btn-primary" type="button">Login</button></a>
             {% endif %}
           </div>
         </div>

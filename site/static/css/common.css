@@ -4,6 +4,10 @@
   margin: auto;
   margin-top: 20px;
   padding: 10px;
+  background-color: rgba(255, 255, 255, .02);
+}
+input {
+  border: 1px solid #444 !important;
 }
 .solid-background {
    background-color: #303030 !important;
