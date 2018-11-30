@@ -112,7 +112,6 @@ class Session(DatabaseBase):
 		pass
 
 	def GetUserBySession(session, session_id_or_object):
-		print(session_id_or_object)
 		user_obj = None
 		try:
 			user_obj = session.query(User).filter(User.id == session_id_or_object.user_id).first()

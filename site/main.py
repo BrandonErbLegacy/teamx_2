@@ -197,6 +197,11 @@ def api_get_cpu_usage():
 def api_get_memory_usage():
 	return str(psutil.virtual_memory().percent)
 
+@app.route('/api/fetch/number_open_tickets', methods=['GET'])
+@admin_endpoint
+def api_get_open_tickets():
+	return str(1)
+
 ###############################
 #####  Utility Functions  #####
 ###############################

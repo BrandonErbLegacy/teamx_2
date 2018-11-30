@@ -1,9 +1,19 @@
 {% extends "admin/admin_core.html" %}
 
 {% block admin_content %}
-<div class="container">
+<div class="container my-2">
   <div class="row">
-    <h2 class="col-12 my-2">Host 1 Hardware</h2>
+    <div class="col-12 alert bg-danger d-none" id="error-banner">
+      There was a serious error
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12 alert bg-primary d-none" id="info-banner">
+      There are pending tickets in the <a href="/admin/tickets">ticket resolution center</a>
+    </div>
+  </div>
+  <div class="row">
+    <h2 class="col-12">Host 1 Hardware</h2>
   </div>
   <div class="row">
     <div class="col-6">
@@ -107,12 +117,28 @@ var warning_level_ram = 40;
 var critical_level_cpu = 70;
 var critical_level_ram = 70;
 
+function set_error(val){
+  $("#error-banner").html(val);
+  $("#error-banner").removeClass("d-none");
+}
+function set_info(val){
+  $("#info-banner").html(val);
+  $("#info-banner").removeClass("d-none");
+}
+
+function hide_error(){
+  $("#error-banner").addClass("d-none");
+}
+function hide_info(){
+  $("#info-banner").addClass("d-none");
+}
+
 function fetch_ram_usage(){
   $.get({
     url: "/api/fetch/memory_usage",
     type: "GET",
     error: function(data){
-      alert(data.responseText);
+      set_error("There was an error contacting the server: "+data.responseText);
     },
     success: function(data){
       $("#admin-stat-ram").text(data+"%");
@@ -141,7 +167,7 @@ function fetch_cpu_usage(){
     url: "/api/fetch/cpu_usage",
     type: "GET",
     error: function(data){
-      alert(data.responseText);
+      set_error("There was an error contacting the server: "+data.responseText);
     },
     success: function(data){
       $("#admin-stat-cpu").text(data+"%");
@@ -165,15 +191,36 @@ function fetch_cpu_usage(){
     }
   })
 }
+function check_if_tickets_open(){
+  $.get({
+    url: "/api/fetch/number_open_tickets",
+    type: "GET",
+    error: function(data){
+      set_error("There was an error contacting the server: "+data.responseText);
+    },
+    success: function(data){
+      if (data >= 1){
+        set_info("There are "+data+" pending tickets in the <a href=\"/admin/tickets\">ticket resolution center</a>")
+      } else {
+        hide_info();
+      }
+    }
+  })
+}
 
 function update_server_stats(){
   fetch_ram_usage();
   fetch_cpu_usage();
   setTimeout(update_server_stats, 2000);
 }
+function update_open_ticket_count(){
+  check_if_tickets_open();
+  setTimeout(update_open_ticket_count, 60000);
+}
 
 function start_updaters(){
   update_server_stats();
+  update_open_ticket_count();
 }
 start_updaters();
 
