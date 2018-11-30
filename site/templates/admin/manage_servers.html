@@ -91,6 +91,18 @@
               </div>
               <input type="text" class="form-control bg-light text-dark" aria-label="Minecraft Version" aria-describedby="minecraft_version_ig" id="minecraft_version" placeholder="1.12.1">
             </div>
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text uniform-form-prepend" id="shortdesc_ig">Short description</span>
+              </div>
+              <textarea class="form-control bg-light text-dark" aria-label="Short Description" aria-describedby="shortdesc_ig" id="shortdesc" placeholder="Short description"></textarea>
+            </div>
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text uniform-form-prepend" id="fulldesc_ig">Full description</span>
+              </div>
+              <textarea class="form-control bg-light text-dark" aria-label="Full Description" aria-describedby="fulldesc_ig" id="fulldesc" placeholder="Full description"></textarea>
+            </div>
             <!--<div class="input-group mb-3">
               <div class="input-group-prepend">
                 <span class="input-group-text uniform-form-prepend" id="server_image_ig">Server Image</span>
@@ -130,7 +142,9 @@
   var sn_input = $("#server_name");
   var stpu_input = $("#technic_pack_url");
   var sa_input = $("#server_address");
-  var smcv_input = $("minecraft_version");
+  var smcv_input = $("#minecraft_version");
+  var ssd_input = $("#shortdesc");
+  var sfd_input = $("#fulldesc");
 
   $("#modal_create_button").click(function(e){
     validate_modal(null);
@@ -164,6 +178,20 @@
       }
     }
   });
+  ssd_input.keypress(function(event){
+    if (event.keyCode == 13){
+      if (button_enabled){
+        validate_modal();
+      }
+    }
+  });
+  sfd_input.keypress(function(event){
+    if (event.keyCode == 13){
+      if (button_enabled){
+        validate_modal();
+      }
+    }
+  });
 
   function validate_modal(e){
     if (sn_input.val().length == 0){
@@ -178,9 +206,25 @@
       set_error("You must enter a server address");
       return;
     }
-    create_server(sn_input.val(), "", stpu_input.val(), sa_input.val(), smcv_input.val());
+    if (ssd_input.val().length == 0){
+      set_error("You must enter a short description");
+      return;
+    }
+    if (sfd_input.val().length == 0){
+      set_error("You must enter a full description");
+      return;
+    }
+    if (ssd_input.val().length > 50){
+      set_error("The short description can not be longer than 50 characters");
+      return;
+    }
+    if (sfd_input.val().length > 300){
+      set_error("The full description cannot be longer than 300 characters");
+      return;
+    }
+    create_server(sn_input.val(), "", stpu_input.val(), sa_input.val(), smcv_input.val(), ssd_input.val(), sfd_input.val());
   }
-  function create_server(name, pic, technic_url, addr, mc_version){
+  function create_server(name, pic, technic_url, addr, mc_version, shortdesc, fulldesc){
     $.post({
       url: "/api/create/server",
       type: "POST",
@@ -194,7 +238,9 @@
         "name":name,
         "address":addr,
         "minecraft_version":mc_version,
-        "path_to_technic":technic_url
+        "path_to_technic":technic_url,
+        "shortdesc": shortdesc,
+        "fulldesc": fulldesc
       }
     })
   }

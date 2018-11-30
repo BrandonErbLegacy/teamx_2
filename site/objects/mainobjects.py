@@ -126,12 +126,14 @@ class Server(DatabaseBase):
 
 	id = Column(String(36), primary_key=True)
 	name = Column(String)
+	shortdesc = Column(String)
+	fulldesc = Column(String)
 	path_to_pic = Column(String)
 	path_to_technic = Column(String)
 	minecraft_version = Column(String)
 	address = Column(String)
 
-	def AddServer(session, name, path_to_pic, path_to_technic, minecraft_version, address):
+	def AddServer(session, name, path_to_pic, path_to_technic, minecraft_version, address, shortdesc, fulldesc):
 		if session.query(Server).filter(Server.name == name).first() != None:
 			raise RecordExists("", "name")
 		server = Server()
@@ -140,6 +142,8 @@ class Server(DatabaseBase):
 		server.path_to_technic = path_to_technic
 		server.minecraft_version = minecraft_version
 		server.address = address
+		server.shortdesc = shortdesc
+		server.fulldesc = fulldesc
 		server.id = new_uuid()
 
 		session.add(server)
@@ -151,6 +155,18 @@ class Server(DatabaseBase):
 
 	def UpdateServer(session, name, path_to_pic, path_to_technic, minecraft_version):
 		pass
+
+	def FetchURL(self):
+		return "/view_server/"+self.id
+
+	def GetPlayerCount(self):
+		return 0
+
+	def GetMaxPlayers(self):
+		return 20
+
+	def GetTopThree(session):
+		return session.query(Server).all()
 
 class ServerPlayerMapping(DatabaseBase):
 	__tablename__ = "MinecraftPlayers"

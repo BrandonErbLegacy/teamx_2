@@ -68,6 +68,14 @@ def about():
 def contact():
 	return "<html>Contact</html>"
 
+@app.route('/faq')
+def faq():
+	if (request.cookies.get('teamx_session')):
+		user = Session.GetUserBySession(main_session, request.cookies.get('teamx_session'))
+		if (user):
+			return render_template('faqs.html', title='FAQs', user=user)
+	return render_template('faqs.html', title='FAQs', user=None)
+
 
 ###############################
 ##### Dynamic Site Routes #####
@@ -81,8 +89,17 @@ def welcome_user():
 	if (request.cookies.get('teamx_session')):
 		user = Session.GetUserBySession(main_session, request.cookies.get('teamx_session'))
 		if (user):
-			return render_template('users/welcome.html', title='Welcome to Team X', user=user)
+			return render_template('users/welcome.html', title='Welcome to Team X', user=user, servers=Server.GetTopThree(main_session))
 	return render_template('users/register.html', title='Register to become a user', user=None)
+
+@app.route('/servers')
+def view_all_servers():
+	if (request.cookies.get('teamx_session')):
+		user = Session.GetUserBySession(main_session, request.cookies.get('teamx_session'))
+		if (user):
+				return render_template('servers.html', title='Servers', user=user, servers=Server.GetAll(main_session))
+	return render_template('servers.html', title='Servers', user=None, servers=Server.GetAll(main_session))
+
 
 @app.route('/logout')
 def logout():
@@ -152,7 +169,9 @@ def api_create_server():
 		mc_version = get_value_or_blank(request, "minecraft_version")
 		path_to_technic = get_value_or_blank(request, "path_to_technic")
 		path_to_image = ""
-		server = Server.AddServer(main_session, name, path_to_image, path_to_technic, mc_version, address)
+		shortdesc = get_value_or_blank(request, "shortdesc")
+		fulldesc = get_value_or_blank(request, "fulldesc")
+		server = Server.AddServer(main_session, name, path_to_image, path_to_technic, mc_version, address, shortdesc, fulldesc)
 		return server.id, 200
 	except RecordExists as ex:
 		return "Your "+ex.field+" must be unique. That one is already in use", 500
