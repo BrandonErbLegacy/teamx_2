@@ -35,12 +35,16 @@
                 {{ user.display_name }}
               </a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="#">Placeholder</a>
-                <a class="dropdown-item" href="#">Placeholder</a>
+                <a class="dropdown-item" href="#">Stats</a>
+                <a class="dropdown-item" href="#">Settings</a>
                 <div class="dropdown-divider"></div>
 
                 {% if user.is_admin or user.is_superuser %}
                 <a class="dropdown-item" href="/admin">Admin Panel</a>
+                <div class="dropdown-divider"></div>
+                {% endif %}
+                {% if user.is_superuser %}
+                <a class="dropdown-item" href="/superuser">Superuser Panel</a>
                 <div class="dropdown-divider"></div>
                 {% endif %}
                 <a class="dropdown-item" href="/logout">Logout</a>

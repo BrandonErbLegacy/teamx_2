@@ -1,0 +1,59 @@
+{% extends 'core.html' %}
+{% block content %}
+<link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet"/>
+<div class="container my-3">
+  <div class="row">
+    <h2 class="col-12 text-center">
+      About us
+    </h2>
+    <div class="col-6 d-flex align-items-stretch">
+      <div class="col-12 solid-background">
+        <h3 class="text-center">Our mission</h3>
+        <p>
+          Our mission is to provide a high quality gaming experience to our community. This includes having reliable servers, a friendly community, and balanced gameplay. We do our best to achieve these objectives and we're always happy to <a href="/contact">receive feedback</a> if you think something needs to be changed.
+        </p>
+      </div>
+    </div>
+    <div class="col-6 d-flex align-items-stretch">
+      <div class="col-12 solid-background">
+        <h3 class="text-center">Next steps</h3>
+        <p>
+          Currently there are a few priorities on our radar. Firstly, we would like to launch a few more servers. Once we have a sizeable number of reliable and interesting servers to work with; we plan to focus on growing our community. On top of that, we also plan to continue updating and refining our website, and community tools.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="row my-2">
+    <h2 class="col-12 text-center">
+      Our staff
+    </h2>
+    <div class="card-wrapper col-4 d-flex align-items-stretch">
+      <div class="card px-3 py-3">
+        <h5 class="card-title">
+          NightWraid
+        </h5>
+        <h6 class="card-subtitle mb-2 text-muted">Our primary developer, and lead admin</h6>
+        <p class="card-text">NightWraid is responsible for developing our website, and most of our mods. He is also the main server admin for all servers. Should a serious issue arise within the community, or with a server then he's your go to guy.</p>
+      </div>
+    </div>
+    <div class="col-4 card-wrapper d-flex align-items-stretch">
+      <div class="card px-3 py-3">
+        <h5 class="card-title">
+          VerdantSpecter
+        </h5>
+        <h6 class="card-subtitle mb-2 text-muted">Community admin</h6>
+        <p class="card-text">VerdantSpecter is one of our community admins. Feel free to talk to him should any issues arise. If he can't resolve an issue then he can put you in touch with whoever can.</p>
+      </div>
+    </div>
+    <div class="col-4 card-wrapper d-flex align-items-stretch">
+      <div class="card px-3 py-3">
+        <h5 class="card-title">
+          Edwardweird
+        </h5>
+        <h6 class="card-subtitle mb-2 text-muted">Community and server admin</h6>
+        <p class="card-text">VerdantSpecter is one of our community admins. Feel free to talk to him should any issues arise. If he can't resolve an issue then he can put you in touch with whoever can.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

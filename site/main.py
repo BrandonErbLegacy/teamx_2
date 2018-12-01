@@ -57,7 +57,10 @@ def index():
 
 @app.route('/about')
 def about():
-	return "<html>About</html>"
+	user = None
+	if (request.cookies.get('teamx_session')):
+		user = Session.GetUserBySession(main_session, request.cookies.get('teamx_session'))
+	return render_template('about.html', title='About us', user=user)
 
 @app.route('/faq')
 def faq():
