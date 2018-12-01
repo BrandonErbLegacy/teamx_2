@@ -12,6 +12,9 @@ input {
 textarea {
   border: 1px solid #444 !important;
 }
+select {
+  border: 1px solid #444 !important;
+}
 .solid-background {
    background-color: #303030 !important;
    padding: 10px;

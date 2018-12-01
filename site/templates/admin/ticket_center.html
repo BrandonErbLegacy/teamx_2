@@ -1,0 +1,60 @@
+{% extends "admin/admin_core.html" %}
+{% block admin_content %}
+<link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet"/>
+<div class="container my-3">
+  {% if tickets|length > 0 %}
+  <div class="row">
+    <div class="alert alert-danger my-2 d-none col-12" role="alert" id="error">
+      Insert message here
+    </div>
+    <table class="col-12 table-light table-striped table">
+      <thead>
+        <tr>
+          <th colspan="3">Open Tickets</th>
+        </tr>
+        <tr>
+          <th>Status</th>
+          <th>Title</th>
+          <th>Actions </th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for ticket in tickets %}
+        <tr>
+          <td style="width: 100px;">{{ticket.status}}</td>
+          <td>{{ticket.title}}</td>
+          <td style="width: 175px;"><a href="/admin/ticket/{{ticket.id}}"<button class="btn btn-primary mx-1">View</button></a><button class="btn btn-danger" onclick='close_ticket("{{ticket.id}}")'>Close</button></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="row">
+    <div class="alert alert-primary my-2 col-12" role="alert" id="info">
+      There are no tickets currently. Why did you even visit this page? The admin dashboard notifies you when there are open tickets.
+    </div>
+  {% endif %}
+</div>
+<script>
+  function set_error(val){
+    $("#error").text(val);
+    $("#error").removeClass("d-none");
+  }
+  function close_ticket(ticket_id){
+    $.post({
+      url: "/api/close/ticket",
+      type: "POST",
+      error: function(data){
+        set_error(data.responseText);
+      },
+      success: function(data){
+        document.location = document.location;
+      },
+      data: {
+        "ticket_id": ticket_id,
+      }
+    })
+  }
+</script>
+{% endblock %}

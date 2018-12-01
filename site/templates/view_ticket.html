@@ -1,0 +1,85 @@
+{% extends 'core.html' %}
+{% block content %}
+<link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet"/>
+<div class="container my-3">
+  <h2 class="col-12">
+    {{ticket.title}}
+  </h2>
+  {% for reply in replies %}
+  <div class="col-12 solid-background" style="border: 1px solid #444;">
+    <div class="row">
+      <div class="col-2" style="border-right: 1px solid #444;">
+        <div class="row">
+          <div class="col-12">
+            <h3 class="text-center">
+              {%if reply.user_id == None and ticket.user_id == None and user == None %}
+                You
+              {% else %}
+                {% if user.id == reply.user_id %}
+                  {{user.display_name}}
+                {% else %}
+                  {% if user.id != reply.id and user != None %}
+                    User
+                  {% else %}
+                    Admin
+                  {% endif %}
+                {%endif %}
+              {% endif %}
+            </h3>
+          </div>
+          <div class="col-12">
+            {{reply.date_created}}
+          </div>
+        </div>
+      </div>
+      <div class="col-10">
+        {{reply.text}}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  <hr />
+  {% if ticket == None %}
+    <div class="col-12 centered-form-wrapper">
+      <p>You're attempting to view a ticket that either has been closed, or you do not have permission to view</p>
+    </div>
+  {% else %}
+    <div class="col-12 solid-background" style="border: 1px solid #444;">
+      <textarea class="col-12 my-1 form-control bg-light text-dark" id="reply"></textarea>
+      <button class="btn btn-primary col-12 my-1" id="reply_button">Reply</button>
+    </div>
+  {% endif %}
+</div>
+<script>
+  $("#reply_button").click(submit_reply);
+  function set_error(val){
+    $("#error").text(val);
+    $("#error").removeClass("d-none");
+  }
+  function submit_reply(){
+    if ($("#reply").val() < 5){
+      set_error("Your reply must be longer than 5 characters");
+      return;
+    }
+    if ($("#reply").val() > 2000){
+      set_error("Your reply must be shorter than 2000 characters");
+      return;
+    }
+
+    $.post({
+      url: "/api/create/ticket_reply",
+      type: "POST",
+      error: function(data){
+        set_error(data.responseText);
+      },
+      success: function(data){
+        document.location = document.location;
+      },
+      data: {
+        "ticket_id": "{{ticket.id}}",
+        "reply": $("#reply").val(),
+      }
+    })
+  }
+</script>
+{% endblock %}

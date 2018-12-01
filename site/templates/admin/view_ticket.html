@@ -1,0 +1,74 @@
+{% extends 'admin/admin_core.html' %}
+{% block admin_content %}
+<link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet"/>
+<div class="container my-3">
+  <h2 class="col-12">
+    {{ticket.title}}
+  </h2>
+  {% for reply in replies %}
+  <div class="col-12 solid-background" style="border: 1px solid #444;">
+    <div class="row">
+      <div class="col-2" style="border-right: 1px solid #444;">
+        <div class="row">
+          <div class="col-12">
+            <h3 class="text-center">
+            {% if reply.user_id == user.id %}
+              You
+            {% else %}
+              User
+            {% endif %}
+            </h3>
+          </div>
+          <div class="col-12">
+            {{reply.date_created}}
+          </div>
+        </div>
+      </div>
+      <div class="col-10">
+        {{reply.text}}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  <hr />
+  <div class="col-12 solid-background" style="border: 1px solid #444;">
+    <div class="alert alert-danger my-2 d-none" role="alert" id="error">
+      Insert message here
+    </div>
+    <textarea class="col-12 my-1 form-control bg-light text-dark" id="reply"></textarea>
+    <button class="btn btn-primary col-12 my-1" id="reply_button">Reply</button>
+  </div>
+</div>
+<script>
+  $("#reply_button").click(submit_reply);
+  function set_error(val){
+    $("#error").text(val);
+    $("#error").removeClass("d-none");
+  }
+  function submit_reply(){
+    if ($("#reply").val() < 5){
+      set_error("Your reply must be longer than 5 characters");
+      return;
+    }
+    if ($("#reply").val() > 2000){
+      set_error("Your reply must be shorter than 2000 characters");
+      return;
+    }
+
+    $.post({
+      url: "/api/create/ticket_reply",
+      type: "POST",
+      error: function(data){
+        set_error(data.responseText);
+      },
+      success: function(data){
+        document.location = document.location;
+      },
+      data: {
+        "ticket_id": "{{ticket.id}}",
+        "reply": $("#reply").val(),
+      }
+    })
+  }
+</script>
+{% endblock %}

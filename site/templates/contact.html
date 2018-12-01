@@ -1,6 +1,181 @@
 {% extends "core.html" %}
 {% block content %}
+<link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet"/>
+{% if user != None %}
+{% if tickets|length > 0 %}
+<div class="container my-3">
+  <div class="row">
+    <table class="col-12 table-light table-striped table">
+      <thead>
+        <tr>
+          <th colspan="3">Open Tickets</th>
+        </tr>
+        <tr>
+          <th>Status</th>
+          <th>Title</th>
+          <th>Actions </th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for ticket in tickets %}
+        <tr>
+          <td style="width: 100px;">{{ticket.status}}</td>
+          <td>{{ticket.title}}</td>
+          <td style="width: 175px;"><button class="btn btn-primary mx-1">View</button><button class="btn btn-danger" onclick="close_ticket('{{ticket.id}}')">Close</button></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endif %}
+<div class="solid-background container my-3">
+  <div class="row">
+    <div class="col-lg-8 col-md-12">
+      <h2 class="col-12 text-center">
+        Contact Us
+      </h2>
+      <div class="col-12">
+        <div class="col-12">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text uniform-form-prepend" id="title_ig">Title</span>
+            </div>
+            <input type="text" class="form-control bg-light text-dark" aria-label="Title" aria-describedby="title_ig" id="title" placeholder="Give your ticket a brief name">
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text uniform-form-prepend" id="server_ig">Server</span>
+            </div>
+            <select class="form-control bg-light text-dark" aria-label="Server" aria-describedby="server_ig" id="server" placeholder="Select a server">
+              <option value="NONE">N/A</option>
+              {% for server in servers %}
+                <option value="{{server.id}}">{{server.name}}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text uniform-form-prepend" id="reason_ig">Reason</span>
+            </div>
+            <textarea class="form-control bg-light text-dark" aria-label="Reason" aria-describedby="reason_ig" id="reason" placeholder="This is the reason you're contacting us. Whether that's a bug, or just a suggestion"></textarea>
+          </div>
+        </div>
+        <div class="alert alert-danger my-2 d-none" role="alert" id="error">
+          Insert message here
+        </div>
+        <div class="col-12">
+          <button class="float-right btn btn-primary" id="submit">Submit</button>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4 d-none d-lg-block">
+      <div class="col-12">
+        <h2 class="text-center">
+          Tips
+        </h2>
+        <p>
+          These tips will help ensure that your ticket is resolved in a timely manner.
+          <ul>
+            <li>If this is a support ticket for a server, then accurately describe what happened.</li>
+            <li>Pictures (via a link to imgur) always help.</li>
+          </ul>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  var title_input = $("#title");
+  var server_input = $("#server");
+  var reason_input = $("#reason");
 
+  var error = $("#error");
 
+  var button_enabled = true;
+
+  $("#submit").click(validate);
+
+  title_input.keypress(function(event){
+    if (event.keyCode == 13){
+      validate();
+    }
+  });
+
+  function close_ticket(ticket_id){
+    $.post({
+      url: "/api/close/ticket",
+      type: "POST",
+      error: function(data){
+        set_error(data.responseText);
+      },
+      success: function(data){
+        document.location = document.location;
+      },
+      data: {
+        "ticket_id": ticket_id,
+      }
+    })
+  }
+
+  function set_error(val){
+    error.text(val);
+    error.removeClass("d-none");
+    button_enabled = true;
+    $("#submit").removeClass("disabled");
+  }
+
+  function validate(){
+    button_enabled = false;
+    $("#submit").addClass("disabled");
+    if (title_input.val().length < 5){
+      set_error("The title must be at least 5 characters long");
+      return;
+    }
+    if (title_input.val().length > 200){
+      set_error("The title cannot be longer than 200 characters");
+      return;
+    }
+    if (reason_input.val().length < 5){
+      set_error("The reason you're describing must be at least 5 characters long");
+      return;
+    }
+    if (reason_input.val().length > 2000){
+      set_error("The reason you're describing cannot be longer than 2000 characters");
+      return;
+    }
+    console.log(server_input.val());
+
+    submit(title_input.val(), server_input.val(), reason_input.val());
+  }
+
+  function submit(title, server_id, reason){
+    $("#submit").removeClass("disabled");
+    $("#error").addClass("d-none");
+
+    $.post({
+      url: "api/create/ticket",
+      type: "POST",
+      error: function(data){
+        set_error(data.responseText);
+      },
+      success: function(data){
+        document.location = "/contact/"+data;
+      },
+      data: {
+        "title":title,
+        "server_id":server_id,
+        "reason":reason
+      }
+    })
+
+  }
+
+</script>
 
 {% endblock %}

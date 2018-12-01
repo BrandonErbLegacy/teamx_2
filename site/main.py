@@ -22,18 +22,13 @@ main_session = session_maker()
 
 def auth_endpoint(f):
 	def wrap(*args, **kwargs):
-		val = f()
+		if (request.cookies.get('teamx_session')):
+			user = Session.GetUserBySession(main_session, request.cookies.get('teamx_session'))
+			if (user):
+				request.teamx_user = user
+		val = f(*args, **kwargs)
 		return val
 	return wrap
-
-#def login_required(func):
-#    """Make sure user is logged in before proceeding"""
-#    @functools.wraps(func)
-#    def wrapper_login_required(*args, **kwargs):
-#        if g.user is None:
-#            return redirect(url_for("login", next=request.url))
-#        return func(*args, **kwargs)
-#    return wrapper_login_required
 
 def admin_endpoint(f):
 	@functools.wraps(f)
@@ -43,7 +38,7 @@ def admin_endpoint(f):
 			if (user):
 				if (user.is_admin or user.is_superuser):
 					request.teamx_user = user
-					return f()
+					return f(*args, **kwargs)
 		return render_template('users/login.html', title='Home', user=None)
 	return wrap
 
@@ -63,10 +58,6 @@ def index():
 @app.route('/about')
 def about():
 	return "<html>About</html>"
-
-@app.route('/contact')
-def contact():
-	return "<html>Contact</html>"
 
 @app.route('/faq')
 def faq():
@@ -97,9 +88,8 @@ def view_all_servers():
 	if (request.cookies.get('teamx_session')):
 		user = Session.GetUserBySession(main_session, request.cookies.get('teamx_session'))
 		if (user):
-				return render_template('servers.html', title='Servers', user=user, servers=Server.GetAll(main_session))
+			return render_template('servers.html', title='Servers', user=user, servers=Server.GetAll(main_session))
 	return render_template('servers.html', title='Servers', user=None, servers=Server.GetAll(main_session))
-
 
 @app.route('/logout')
 def logout():
@@ -111,6 +101,28 @@ def logout():
 def login():
 	return render_template('users/login.html', title="Please log in", user=None)
 
+@app.route('/contact')
+def contact():
+	if (request.cookies.get('teamx_session')):
+		user = Session.GetUserBySession(main_session, request.cookies.get('teamx_session'))
+		if (user):
+			return render_template('contact.html', title='FAQs', user=user, tickets=Ticket.GetByUser(main_session, user), servers=Server.GetAll(main_session))
+	return render_template('contact.html', title='FAQs', user=None, tickets=None, servers=Server.GetAll(main_session))
+
+@app.route('/contact/<string:ticket_id>')
+def contact_view_ticket(ticket_id):
+	try:
+		user = None
+		if (request.cookies.get('teamx_session')):
+			user = Session.GetUserBySession(main_session, request.cookies.get('teamx_session'))
+		ticket = Ticket.GetTicketById(main_session, ticket_id, user)
+		replies = Ticket.GetRepliesByTicket(main_session, ticket)
+		return render_template('view_ticket.html', title='View ticket', user=user, ticket=ticket, replies=replies)
+	except AttributeError:
+		user = None
+		if (request.cookies.get('teamx_session')):
+			user = Session.GetUserBySession(main_session, request.cookies.get('teamx_session'))
+		return render_template('view_ticket.html', title='View ticket', user=user, ticket=None, replies=[])
 
 ###############################
 #####  Admin Site Routes  #####
@@ -129,6 +141,20 @@ def admin_users():
 @admin_endpoint
 def admin_servers():
 	return render_template('admin/manage_servers.html', title="Admin Dashboard", user=request.teamx_user, servers=Server.GetAll(main_session))
+
+@app.route('/admin/tickets')
+@admin_endpoint
+def admin_ticket_center():
+	return render_template('admin/ticket_center.html', title="Open Tickets", user=request.teamx_user, servers=Server.GetAll(main_session), tickets=Ticket.GetOpenTickets(main_session))
+
+@app.route('/admin/ticket/<string:ticket_id>')
+@admin_endpoint
+def admin_view_ticket(ticket_id):
+	user = request.teamx_user
+	ticket = Ticket.GetTicketById(main_session, ticket_id, user)
+	replies = Ticket.GetRepliesByTicket(main_session, ticket)
+	return render_template('admin/view_ticket.html', title="Ticket "+ticket.title, user=user, servers=Server.GetAll(main_session), ticket=ticket, replies=replies)
+
 
 ###############################
 #####   Rest API Routes   #####
@@ -176,6 +202,44 @@ def api_create_server():
 	except RecordExists as ex:
 		return "Your "+ex.field+" must be unique. That one is already in use", 500
 
+@app.route('/api/create/ticket', methods=['POST'])
+def api_create_ticket():
+	try:
+		user = None
+		if (request.cookies.get('teamx_session')):
+			user = Session.GetUserBySession(main_session, request.cookies.get('teamx_session'))
+		title = get_value_or_blank(request, "title")
+		server_id = get_value_or_blank(request, "server")
+		reason = get_value_or_blank(request, "reason")
+		ticket = Ticket.OpenTicket(main_session, user, title, reason, server_id)
+		return ticket.id, 200
+	except:
+		return "There was an error creating your ticket", 500
+
+@app.route('/api/close/ticket', methods=['POST'])
+@auth_endpoint
+def api_close_ticket():
+	try:
+		ticket_id = get_value_or_blank(request, "ticket_id")
+		ticket = Ticket.GetTicketById(main_session, ticket_id, request.teamx_user)
+		Ticket.CloseTicket(main_session, ticket)
+		return "Ticket closed", 200
+	except IOError:
+		return "There was an error closing the ticket", 500
+
+@app.route('/api/create/ticket_reply', methods=['POST'])
+def api_create_ticket_reply():
+	try:
+		user = None
+		if (request.cookies.get('teamx_session')):
+			user = Session.GetUserBySession(main_session, request.cookies.get('teamx_session'))
+		ticket_id = get_value_or_blank(request, "ticket_id")
+		text = get_value_or_blank(request, "reply")
+		ticket = Ticket.GetTicketById(main_session, ticket_id, user)
+		comment = Ticket.CommentTicket(main_session, ticket, user, text)
+		return comment.id
+	except:
+		return "There was an error creating your response", 500
 
 #This is a solution until we have something like 10k-20k users
 #After that, pagination needs to be considered
@@ -200,7 +264,7 @@ def api_get_memory_usage():
 @app.route('/api/fetch/number_open_tickets', methods=['GET'])
 @admin_endpoint
 def api_get_open_tickets():
-	return str(1)
+	return str(Ticket.GetOpenCount(main_session))
 
 ###############################
 #####  Utility Functions  #####

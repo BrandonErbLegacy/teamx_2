@@ -198,6 +198,94 @@ class ServerActivityLog(DatabaseBase):
 #  - Server Quit
 #  - Server Crashed
 
+class Ticket(DatabaseBase):
+	__tablename__ = "Tickets"
+	id = Column(String(36), primary_key=True)
+	title = Column(String)
+	user_id = Column(String(36))
+	server_id = Column(String(36)) #Server.id
+	status = Column(String)
+	date_created = Column(DateTime(timezone=True), server_default=func.now())
+
+	def GetByUser(session, user):
+		tickets = session.query(Ticket).filter(Ticket.user_id == user.id).filter(Ticket.status != "Closed").all()
+		return tickets
+
+	def GetRepliesByTicket(session, ticket):
+		replies = session.query(TicketReply).filter(TicketReply.ticket_id == ticket.id).order_by(TicketReply.date_created.asc())
+		return replies
+
+	def GetTicketById(session, id, user):
+		if (user != None):
+			if (user.is_admin or user.is_superuser):
+				ticket = session.query(Ticket).filter(Ticket.id == id).first()
+			else:
+				ticket = session.query(Ticket).filter(Ticket.id == id).filter(Ticket.user_id == user.id).first()
+		else:
+			ticket = session.query(Ticket).filter(Ticket.id == id).filter(Ticket.user_id == None).first()
+		return ticket
+
+	def OpenTicket(session, user, title, text, server_id):
+		ticket = Ticket()
+		ticket.id = new_uuid()
+		ticket.title = title
+		if (user != None):
+			ticket.user_id = user.id
+		else:
+			ticket.user_id = None
+		ticket.server_id = server_id
+		ticket.status = "Open"
+
+		ticket_reply = TicketReply()
+		ticket_reply.id = new_uuid()
+		ticket_reply.ticket_id = ticket.id
+		if (user != None):
+			ticket_reply.user_id = user.id
+		else:
+			ticket_reply.user_id = None
+		ticket_reply.text = text
+
+		session.add(ticket)
+		session.add(ticket_reply)
+
+		session.commit()
+		return ticket
+
+	def CommentTicket(session, ticket, user, text):
+		ticket_reply = TicketReply()
+		ticket_reply.id = new_uuid()
+		ticket_reply.ticket_id = ticket.id
+		if user != None:
+			ticket_reply.user_id = user.id
+		else:
+			ticket_reply.user_id = None
+		ticket_reply.text = text
+		session.add(ticket_reply)
+		session.commit()
+		return ticket_reply
+
+	def GetOpenTickets(session):
+		tickets = session.query(Ticket).filter(Ticket.status != "Closed").all()
+		return tickets
+
+	def GetOpenCount(session):
+		tickets = session.query(Ticket).filter(Ticket.status != "Closed").all()
+		return len(tickets)
+
+	def CloseTicket(session, ticket):
+		ticket.status = "Closed"
+		session.commit()
+	#def AddReply(session, user, ticket):
+
+
+class TicketReply(DatabaseBase):
+	__tablename__ = "TicketReplies"
+	id = Column(String(36), primary_key=True)
+	ticket_id = Column(String(36)) #Ticket.id
+	text = Column(String)
+	user_id = Column(String(36)) #User.id
+	date_created = Column(DateTime(timezone=True), server_default=func.now())
+
 class Mod(DatabaseBase):
 	__tablename__ = "Mods"
 	id = Column(String(36), primary_key=True)
