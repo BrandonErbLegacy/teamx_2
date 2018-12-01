@@ -21,7 +21,7 @@
         <tr>
           <td style="width: 100px;">{{ticket.status}}</td>
           <td>{{ticket.title}}</td>
-          <td style="width: 175px;"><button class="btn btn-primary mx-1">View</button><button class="btn btn-danger" onclick="close_ticket('{{ticket.id}}')">Close</button></td>
+          <td style="width: 175px;"><a href="/contact/{{ticket.id}}"><button class="btn btn-primary mx-1">View</button></a><button class="btn btn-danger" onclick="close_ticket('{{ticket.id}}')">Close</button></td>
         </tr>
       {% endfor %}
       </tbody>
