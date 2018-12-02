@@ -19,6 +19,8 @@ session_maker.configure(bind=db_engine)
 
 main_session = session_maker()
 
+player_count_per_server = {}#Server_ID:player_count
+
 
 def auth_endpoint(f):
 	def wrap(*args, **kwargs):
@@ -93,6 +95,16 @@ def view_all_servers():
 		if (user):
 			return render_template('servers.html', title='Servers', user=user, servers=Server.GetAll(main_session))
 	return render_template('servers.html', title='Servers', user=None, servers=Server.GetAll(main_session))
+
+@app.route('/view_server/<string:server_id>', methods=["GET"])
+def view_one_server(server_id):
+	server = Server.GetById(main_session, server_id)
+	if (request.cookies.get('teamx_session')):
+		user = Session.GetUserBySession(main_session, request.cookies.get('teamx_session'))
+		if (user):
+			return render_template('view_server.html', title='Servers', user=user, server=server)
+	return render_template('view_server.html', title='Servers', user=None, server=server)
+
 
 @app.route('/logout')
 def logout():
@@ -243,6 +255,60 @@ def api_create_ticket_reply():
 		return comment.id
 	except:
 		return "There was an error creating your response", 500
+
+@app.route('/api/server/event', methods=['POST'])
+def api_server_create_event():
+	data = json.loads(request.data)
+	print(data)
+	server_id = ""
+	action = ""
+	player_id = ""
+	player_name = ""
+	if ("server_id" in data.keys()):
+		server_id = data["server_id"]
+	if ("action" in data.keys()):
+		action = data["action"]
+	if ("player_id" in data.keys()):
+		player_id = data["player_id"]
+	if ("player_name" in data.keys()):
+		player_name = data["player_name"]
+
+	server = Server.GetById(main_session, server_id)
+	if (action == "SERVER_STARTED"):
+		ServerActivityLog.ServerStarted(main_session, server_id)
+	elif (action == "SERVER_PLANNED_STOP"):
+		ServerActivityLog.ServerStopped(main_session, server_id)
+	elif (action == "SERVER_CRASHED"):
+		ServerActivityLog.ServerCrashed(main_session, server_id)
+	elif (action == "PLAYER_LOGGED_IN"):
+		if (server_id in player_count_per_server.keys()):
+			player_count_per_server[server_id] = player_count_per_server[server_id]+1
+		else:
+			player_count_per_server[server_id] = 1
+		ServerActivityLog.AddServerActivityLog(main_session, action, server.id, player_id, player_name)
+	elif (action == "PLAYER_LOGGED_OUT"):
+		if (server_id in player_count_per_server.keys()):
+			player_count_per_server[server_id] = player_count_per_server[server_id]-1
+			if player_count_per_server[server_id] < 0:
+				player_count_per_server[server_id] = 0
+		ServerActivityLog.AddServerActivityLog(main_session, action, server.id, player_id, player_name)
+	elif ("PLAYER_MAX" in action):
+		ServerActivityLog.AddServerActivityLog(main_session, action, server.id, player_id, player_name, generate_mapping=False)
+	else:
+		ServerActivityLog.AddServerActivityLog(main_session, action, server.id, player_id, player_name)
+	return "", 200
+
+@app.route('/api/server/<string:server_id>/get_current_player_count', methods=['GET'])
+def api_server_get_player_count(server_id):
+	if (server_id in player_count_per_server.keys()):
+		return str(player_count_per_server[server_id])
+	else:
+		player_count_per_server[server_id] = 0
+		return str(0)
+
+@app.route('/api/server/<string:server_id>/get_max_player_count', methods=['GET'])
+def api_server_get_max_player_count(server_id):
+	return ServerActivityLog.GetMaxPlayers(main_session, server_id)
 
 #This is a solution until we have something like 10k-20k users
 #After that, pagination needs to be considered

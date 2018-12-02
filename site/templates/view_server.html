@@ -1,0 +1,52 @@
+{% extends 'core.html' %}
+{% block content %}
+<link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet"/>
+<div class="container solid-background my-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="alert alert-warning">
+      This page is not finished yet! Soon to come you'll be able to view recent patches, and the mods installed on each server
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="row">
+        <div class="col-3">
+          <img src="{{ url_for('static', filename=server.path_to_pic) }}" style="width: 100%;"/>
+        </div>
+        <div class="col-9">
+          <div class="row">
+            <h2 class="col-12">
+              {{ server.name }}
+            </h2>
+            <h4 class="col-12">Description</h4>
+            <p class="col-12">
+              {{ server.fulldesc }}
+            </p>
+            <h4 class="col-12 my-3">
+              Basic info
+            </h4>
+            <div class="col-12">
+              Minecraft Version: <strong>{{server.minecraft_version}}</strong>
+              <br />
+              Server type:<strong>
+              {% if server.path_to_technic != None %}
+                Modded (Technic)
+              {% else %}
+                Vanilla
+              {% endif %}</strong>
+            </div>
+            <div class="col-12 my-3">
+              {% if server.path_to_technic %}
+                <a href="{{server.path_to_technic}}"><button class="btn btn-primary">Technic Modpack</button></a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

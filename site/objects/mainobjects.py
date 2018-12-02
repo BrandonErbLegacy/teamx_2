@@ -149,6 +149,9 @@ class Server(DatabaseBase):
 		session.commit()
 		return server
 
+	def GetById(session, id):
+		return session.query(Server).filter(Server.id == id).first()
+
 	def GetAll(session):
 		return session.query(Server).all()
 
@@ -174,21 +177,75 @@ class ServerPlayerMapping(DatabaseBase):
 	minecraft_guid = Column(String(36))
 	user_id = Column(String(36)) #User.id
 	server_id = Column(String(36)) #User.id
+	date_joined = Column(DateTime(timezone=True), server_default=func.now())
 
-	def AddServerPlayerMapping(session, minecraft_name, minecraft_guid, user_object, server_object):
-		pass
-
-	def UpdateServerPlayerMapping(session, server_player_mapping_object, server_object):
+	def AddUserAccount(session, user_obj, mapping):
 		pass
 
 class ServerActivityLog(DatabaseBase):
 	__tablename__ = "ServerActivityLogs"
 	id = Column(String(36), primary_key=True)
 	action = Column(String)
+	server_id = Column(String(36))
 	server_player_mapping_id = Column(String(36)) #ServerPLayerMapping.id
+	event_time = Column(DateTime(timezone=True), server_default=func.now())
 
-	def AddServerActivityLog(session, action, server_player_mapping_object=None):
-		pass
+	def AddServerActivityLog(session, action, server_id, player_id, player_name, generate_mapping=True):
+		player_with_id = session.query(ServerPlayerMapping).filter(ServerPlayerMapping.minecraft_guid == player_id).filter(ServerPlayerMapping.server_id == server_id).first()
+		if (generate_mapping):
+			if (player_with_id != None):
+				player_with_id.minecraft_name = player_name
+				player_with_id.server_id = server_id
+			else:
+				player_with_id = ServerPlayerMapping()
+				player_with_id.id = new_uuid()
+				player_with_id.minecraft_name = player_name
+				player_with_id.minecraft_guid = player_id
+				player_with_id.server_id = server_id
+				session.add(player_with_id)
+		sal = ServerActivityLog()
+		sal.id = new_uuid()
+		sal.action = action
+		sal.server_id = server_id
+		if (generate_mapping):
+			sal.server_player_mapping_id = player_with_id.id
+
+		session.add(sal)
+		session.commit()
+
+	def ServerStarted(session, server_id):
+		sal = ServerActivityLog()
+		sal.id = new_uuid()
+		sal.action = "SERVER_STARTED"
+		sal.server_id = server_id
+
+		session.add(sal)
+		session.commit()
+
+	def ServerStopped(session, server_id):
+		sal = ServerActivityLog()
+		sal.id = new_uuid()
+		sal.action = "SERVER_PLANNED_STOPPED"
+		sal.server_id = server_id
+
+		session.add(sal)
+		session.commit()
+
+	def ServerCrashed(session, server_id):
+		sal = ServerActivityLog()
+		sal.action = "SERVER_CRASHED"
+		sal.server_id = server_id
+
+		session.add(sal)
+		session.commit()
+
+	def GetMaxPlayers(session, server_id):
+		last_res = session.query(ServerActivityLog).filter(ServerActivityLog.server_id == server_id).order_by(ServerActivityLog.event_time.desc()).all()
+		for sal in last_res:
+			if ("PLAYER_MAX" in sal.action):
+				return sal.action.split(":")[1]
+		return str(20)
+
 # Actions:
 #  - PlayerLoggedOn
 #  - PLayerLoggedOff
