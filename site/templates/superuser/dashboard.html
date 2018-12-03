@@ -1,0 +1,111 @@
+{% extends 'admin/admin_core.html' %}
+{% block admin_content %}
+<link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet"/>
+<div class="container my-5">
+  <div class="row">
+    <div class="col-12 card">
+      <div class="card-title my-2 text-center">
+        <h3>Admin Controls</h3>
+      </div>
+      <div class="row">
+        <table class="table table-light table-hover" id="user-table">
+          <thead>
+            <tr>
+              <th data-field="username">Username</th>
+              <th data-field="display_name">Display Name</th>
+              <th data-field="email">Email</th>
+              <th data-field="last_seen">Last seen</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr>
+              <td>{{user.username}}</td>
+              <td>{{user.display_name}}</td>
+              <td>{{user.email}}</td>
+              <td>{{user.last_seen}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="card-body">
+        <div class="input-group">
+          <input type="text" class="form-control text-dark bg-light" placeholder="Recipient's username"id="username_input">
+          <div class="input-group-append">
+            <!--<button class="btn btn-danger disabled" type="button" style="border-right: 2px solid #333;" id="take_button">Remove admin privs</button>-->
+            <button class="btn btn-primary disabled" type="button" id="give_button">Give admin privs</button>
+          </div>
+        </div>
+        <div class="input-group my-1" id="status">
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  var give_enabled = false;
+  var take_enabled = false;
+
+  var input_control = $("#username_input");
+  var give_button = $("#give_button");
+  var take_button = $("#take_button");
+
+  var curr_user_name = "";
+  var curr_user_id = "";
+
+  var timeout;
+
+  input_control.keypress(function(e){
+    clearTimeout(timeout);
+    timeout = setTimeout(function(){search_user(input_control.val())}, 2000);
+    if (curr_user_name == ""){
+      $("#status").text("Searching for: "+input_control.val());
+    }
+  });
+
+  give_button.click(function(e){
+    give_admin(curr_user_id);
+  });
+
+  function search_user(username){
+    $.post({
+      url: "api/exists/user",
+      type: "POST",
+      error: function(data){
+        alert(data.responseText);
+      },
+      success: function(data){
+        if (data != "NONE"){
+          curr_user_name = username;
+          curr_user_id = data;
+          give_enabled = true;
+          give_button.removeClass("disabled");
+          $("#status").text("Locked on to: "+username);
+        }
+      },
+      data: {
+        "username": username,
+      }
+    })
+  }
+
+  function give_admin(user_id){
+    $.post({
+      url: "api/give_admin/user",
+      type: "POST",
+      error: function(data){
+        alert(data.responseText);
+      },
+      success: function(data){
+        document.location = document.location;
+      },
+      data: {
+        "user_id": user_id,
+      }
+    })
+  }
+
+</script>
+{% endblock %}

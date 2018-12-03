@@ -60,6 +60,20 @@ class User(DatabaseBase):
 
 		return (user, user_session.id)
 
+	def UserExists(session, username):
+		user = session.query(User).filter(User.username == username).first()
+		return user
+
+	def GiveAdmin(session, user_id):
+		user = session.query(User).filter(User.id == user_id).first()
+		if (user != None):
+			user.is_admin = True
+		else:
+			return False
+		session.commit()
+		return True
+
+
 	def LogUserIn(session, username, password, ip_addr):
 		target_user = session.query(User).filter(User.username == username).first()
 		if (target_user == None):
@@ -70,6 +84,10 @@ class User(DatabaseBase):
 			return user_session
 		else:
 			return None
+
+	def GetAdminUsers(session):
+		users = session.query(User).filter(User.is_admin == 1).all()
+		return users
 
 	def GetAllUsers(session):
 		all_users = session.query(User).all()

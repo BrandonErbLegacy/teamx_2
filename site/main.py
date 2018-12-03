@@ -44,6 +44,18 @@ def admin_endpoint(f):
 		return render_template('users/login.html', title='Home', user=None)
 	return wrap
 
+def superuser_endpoint(f):
+	@functools.wraps(f)
+	def wrap(*args, **kwargs):
+		if (request.cookies.get('teamx_session')):
+			user = Session.GetUserBySession(main_session, request.cookies.get('teamx_session'))
+			if (user):
+				if (user.is_superuser):
+					request.teamx_user = user
+					return f(*args, **kwargs)
+		return render_template('users/login.html', title='Home', user=None)
+	return wrap
+
 ##############################
 ##### Static Site Routes #####
 ##############################
@@ -170,6 +182,14 @@ def admin_view_ticket(ticket_id):
 	replies = Ticket.GetRepliesByTicket(main_session, ticket)
 	return render_template('admin/view_ticket.html', title="Ticket "+ticket.title, user=user, servers=Server.GetAll(main_session), ticket=ticket, replies=replies)
 
+################################
+#####   Superuser Routes   #####
+################################
+@app.route('/superuser')
+@superuser_endpoint
+def superuser_home():
+	return render_template('superuser/dashboard.html', title="Superuser Dashboard", user=request.teamx_user, users=User.GetAdminUsers(main_session))
+
 
 ###############################
 #####   Rest API Routes   #####
@@ -187,6 +207,15 @@ def api_auth_user():
 			return "The provided credentials did not match our records", 403
 		else:
 			return session.id, 200
+
+@app.route('/api/exists/user', methods=['POST'])
+def api_check_user():
+	username = get_value_or_blank(request, "username")
+	user = User.UserExists(main_session, username)
+	if user != None:
+		return user.id
+	else:
+		return "NONE", 200
 
 @app.route('/api/create/user', methods=['POST'])
 def api_create_user():
@@ -334,6 +363,14 @@ def api_get_memory_usage():
 @admin_endpoint
 def api_get_open_tickets():
 	return str(Ticket.GetOpenCount(main_session))
+
+@app.route('/api/give_admin/user', methods=['POST'])
+@superuser_endpoint
+def api_give_user_admin():
+	user_id = get_value_or_blank(request, "user_id")
+	if (user_id != ""):
+		User.GiveAdmin(main_session, user_id)
+	return "", 200
 
 ###############################
 #####  Utility Functions  #####
