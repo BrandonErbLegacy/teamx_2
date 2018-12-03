@@ -1,0 +1,248 @@
+{% extends "admin/admin_core.html" %}
+
+{% block admin_content %}
+<link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet"/>
+<div class="container my-4">
+  <div class="row">
+    <h2 class="col-12">
+      Servers
+    </h2>
+  </div>
+  <div class="row">
+    <p class="alert bg-primary my-2">
+      Please note that all servers must first be set up on the physical machine by someone with an SSH account to the machine. Afterward it must have the NightWraid.utilities mod installed in order to talk to our website. Without that mod the server stats here will not update
+    </p>
+  </div>
+  <div class="row">
+    <table class="table table-light table-hover" id="user-table">
+      <thead>
+        <tr>
+          <th colspan="7">
+            <button class="btn-success btn float-right" data-toggle="modal" data-target="#create-server-modal">Add Server</button>
+          </th>
+        </tr>
+        <tr>
+          <th>Server Name</th>
+          <th>Address</th>
+          <th>Status</th>
+          <th>Load</th>
+          <th>TPS</th>
+          <th style="width: 5%;">View</th>
+          <th style="width: 5%;">Edit</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for server in servers %}
+          <tr>
+            <td>{{server.name}}</td>
+            <td>{{server.address}}</td>
+            <td>NA</td>
+            <td>NA</td>
+            <td>NA</td>
+            <td><button class="btn btn-primary" data-target="{{server.id}}">View</button></td>
+            <td><button class="btn btn-primary" data-target="{{server.id}}">Edit</button></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="modal" id="create-server-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Required Info</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <p class="alert bg-primary my-2">
+          An image upload option will be added later. For now you must contact the site admin to have an image set.
+        </p>
+        <p class="alert bg-danger d-none my-2" id="server-modal-error">
+          Error message here
+        </p>
+        <form>
+          <div class="form-group">
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text uniform-form-prepend" id="server_name_ig">Server Name</span>
+              </div>
+              <input type="text" class="form-control bg-light text-dark" aria-label="Server Name" aria-describedby="server_name_ig" id="server_name" placeholder="Awesome Server">
+            </div>
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text uniform-form-prepend" id="technic_pack_url_ig">Technic Pack URL</span>
+              </div>
+              <input type="text" class="form-control bg-light text-dark" aria-label="Technic Pack URL" aria-describedby="technic_pack_url_ig" id="technic_pack_url" placeholder="Leave this blank if it's vanilla">
+            </div>
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text uniform-form-prepend" id="server_address_ig">Server Address</span>
+              </div>
+              <input type="text" class="form-control bg-light text-dark" aria-label="Server Address" aria-describedby="server_address_ig" id="server_address" placeholder="endofdays.teamx.gdn:25567">
+            </div>
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text uniform-form-prepend" id="minecraft_version_ig">Server Address</span>
+              </div>
+              <input type="text" class="form-control bg-light text-dark" aria-label="Minecraft Version" aria-describedby="minecraft_version_ig" id="minecraft_version" placeholder="1.12.1">
+            </div>
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text uniform-form-prepend" id="shortdesc_ig">Short description</span>
+              </div>
+              <textarea class="form-control bg-light text-dark" aria-label="Short Description" aria-describedby="shortdesc_ig" id="shortdesc" placeholder="Short description"></textarea>
+            </div>
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text uniform-form-prepend" id="fulldesc_ig">Full description</span>
+              </div>
+              <textarea class="form-control bg-light text-dark" aria-label="Full Description" aria-describedby="fulldesc_ig" id="fulldesc" placeholder="Full description"></textarea>
+            </div>
+            <!--<div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text uniform-form-prepend" id="server_image_ig">Server Image</span>
+              </div>
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" id="customFile">
+                <label class="custom-file-label bg-light text-dark" for="customFile">Choose file</label>
+              </div>
+            </div>-->
+          </div>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="modal_create_button">Create</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script>
+  /*$(document).on('change', ':file', function() {
+      var input = $(this),
+          numFiles = input.get(0).files ? input.get(0).files.length : 1,
+          label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+      input.trigger('fileselect', [numFiles, label]);
+  });*/
+  var button_enabled = true
+  function set_error(val){
+    var error = $("#server-modal-error");
+    error.text(val);
+    error.removeClass("d-none");
+    console.log(val);
+  }
+  var sn_input = $("#server_name");
+  var stpu_input = $("#technic_pack_url");
+  var sa_input = $("#server_address");
+  var smcv_input = $("#minecraft_version");
+  var ssd_input = $("#shortdesc");
+  var sfd_input = $("#fulldesc");
+
+  $("#modal_create_button").click(function(e){
+    validate_modal(null);
+  });
+
+  sn_input.keypress(function(event){
+    if (event.keyCode == 13){
+      if (button_enabled){
+        validate_modal();
+      }
+    }
+  });
+  stpu_input.keypress(function(event){
+    if (event.keyCode == 13){
+      if (button_enabled){
+        validate_modal();
+      }
+    }
+  });
+  sa_input.keypress(function(event){
+    if (event.keyCode == 13){
+      if (button_enabled){
+        validate_modal();
+      }
+    }
+  });
+  smcv_input.keypress(function(event){
+    if (event.keyCode == 13){
+      if (button_enabled){
+        validate_modal();
+      }
+    }
+  });
+  ssd_input.keypress(function(event){
+    if (event.keyCode == 13){
+      if (button_enabled){
+        validate_modal();
+      }
+    }
+  });
+  sfd_input.keypress(function(event){
+    if (event.keyCode == 13){
+      if (button_enabled){
+        validate_modal();
+      }
+    }
+  });
+
+  function validate_modal(e){
+    if (sn_input.val().length == 0){
+      set_error("You must enter a name");
+      return;
+    }
+    if (sn_input.val().length < 5){
+      set_error("The name must be at least 5 characters long");
+      return;
+    }
+    if (sa_input.val().length == 0){
+      set_error("You must enter a server address");
+      return;
+    }
+    if (ssd_input.val().length == 0){
+      set_error("You must enter a short description");
+      return;
+    }
+    if (sfd_input.val().length == 0){
+      set_error("You must enter a full description");
+      return;
+    }
+    if (ssd_input.val().length > 50){
+      set_error("The short description can not be longer than 50 characters");
+      return;
+    }
+    if (sfd_input.val().length > 300){
+      set_error("The full description cannot be longer than 300 characters");
+      return;
+    }
+    create_server(sn_input.val(), "", stpu_input.val(), sa_input.val(), smcv_input.val(), ssd_input.val(), sfd_input.val());
+  }
+  function create_server(name, pic, technic_url, addr, mc_version, shortdesc, fulldesc){
+    $.post({
+      url: "/api/create/server",
+      type: "POST",
+      error: function(data){
+        set_error(data.responseText);
+      },
+      success: function(data){
+        document.location = "/admin/servers";
+      },
+      data: {
+        "name":name,
+        "address":addr,
+        "minecraft_version":mc_version,
+        "path_to_technic":technic_url,
+        "shortdesc": shortdesc,
+        "fulldesc": fulldesc
+      }
+    })
+  }
+</script>
+{% endblock admin_content %}

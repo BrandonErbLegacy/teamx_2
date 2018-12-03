@@ -1,0 +1,52 @@
+{% extends "admin/admin_core.html" %}
+{% block admin_content %}
+<div class="container">
+  <div class="row my-1">
+    <h2 class="col-12">
+      Users
+    </h2>
+  </div>
+  <div class="row">
+    <table class="table table-light table-hover" id="user-table">
+      <thead>
+        <tr>
+          <th data-field="username">Username</th>
+          <th data-field="display_name">Display Name</th>
+          <th data-field="email">Email</th>
+          <th data-field="last_seen">Last seen</th>
+        </tr>
+      </thead>
+    </table>
+  </div>
+</div>
+<style>
+</style>
+<script type="text/javascript" src="{{ url_for('static', filename='vendor/bootstrap_table/bootstrap-table.min.js') }}"></script>
+<script>
+  var userdata = [];
+  $.get({
+    url: "/api/fetch/all_users",
+    type: "GET",
+    error: function(data){
+      alert(data.responseText);
+    },
+    success: function(data){
+      console.log(data);
+      userdata = JSON.parse(data);
+      console.log(userdata);
+
+      $("#user-table").bootstrapTable({
+        data: userdata
+      });
+      //Make the resulting table fill the row
+      $(".bootstrap-table").addClass("col-12");
+      $(".fixed-table-loading").text("");
+    }
+  })
+
+  $(function(){
+
+  });
+</script>
+
+{% endblock admin_content %}

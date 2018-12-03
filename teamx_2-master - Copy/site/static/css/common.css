@@ -1,0 +1,34 @@
+.centered-form-wrapper {
+  max-width: 500px;
+  border: 1px solid #333;
+  margin: auto;
+  margin-top: 20px;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, .02);
+}
+input {
+  border: 1px solid #444 !important;
+}
+textarea {
+  border: 1px solid #444 !important;
+}
+.solid-background {
+   background-color: #303030 !important;
+   padding: 10px;
+}
+.server-card-mini img {
+  max-height: 150px;
+}
+.uniform-form-prepend {
+   width: 150px;
+ }
+.card-img-custom{
+  height: 200px;
+ }
+.card-playercount {
+  margin-top: 158px; /* Magic numbers are bad. Fix this later */
+  text-align: right;
+  width: 100%;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, .02);
+}

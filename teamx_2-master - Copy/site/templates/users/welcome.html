@@ -1,0 +1,41 @@
+{% extends "core.html" %}
+
+{% block content %}
+<link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet"/>
+<div class="container my-3">
+  <div class="row">
+    <div class="col-12" style="background-color: #303030 !important; padding: 10px;">
+      <h2 class="text-center">Welcome, {{ user.display_name }}</h2>
+    </div>
+    <div class="col-12" style="background-color: #303030 !important; padding: 20px;">
+      <h5>You've made the right choice joining our community. You now have full access to our website, and all of our minecraft servers. Now that you're one of us, we suggest checking out some of our popular or new servers!</h5>
+      <p>
+        Your username for logging in is: <strong>{{ user.username }}</strong><br />
+        Your email for password recovery is: <strong>{{ user.email }}</strong>
+      </p>
+    </div>
+    <div class="col-12">
+      <hr />
+    </div>
+    <div class="col-12">
+      <h3 text-center>Popular Servers</h3>
+    </div>
+    {% for server in servers %}
+      <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 server-card-mini my-3">
+        <div class="card">
+          <div class="card-img-custom" style="background-image: url('{{ url_for('static', filename=server.path_to_pic) }}')">
+            <div class="card-playercount">
+              <span class="float-left">Players online right now</span> {{ server.GetPlayerCount() }}/{{ server.GetMaxPlayers() }}
+            </div>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">{{ server.name }}</h5>
+            <p class="card-text">{{ server.shortdesc }}</p>
+            <a href="{{ server.FetchURL() }}" class="btn btn-primary float-right">Details</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

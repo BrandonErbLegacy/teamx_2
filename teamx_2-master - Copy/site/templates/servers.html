@@ -1,0 +1,38 @@
+{% extends "core.html" %}
+
+{% block content %}
+<link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet"/>
+<div class="container my-3">
+  <div class="row">
+    <h2 class="col-12">Servers we host</h2>
+  </div>
+  <div class="row">
+    {% for server in servers %}
+      <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 server-card-mini my-3">
+        <div class="card">
+          <div class="card-img-custom" style="background-image: url('{{ url_for('static', filename=server.path_to_pic) }}')">
+            <div class="card-playercount">
+              <span class="float-left">Players online right now</span> {{ server.GetPlayerCount() }}/{{ server.GetMaxPlayers() }}
+            </div>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">{{ server.name }}</h5>
+            <p class="card-text">{{ server.shortdesc }}</p>
+            <a href="{{ server.FetchURL() }}" class="btn btn-primary float-right">Details</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="row my-4">
+    <h2 class="col-12">Other servers in our community</h2>
+  </div>
+  <div class="row">
+    <div class="col-12 alert bg-primary">
+      We're currently looking for other hosts with like minds. Drop us a message (Anyone with the server admin permission) on <a href="https://discord.gg/ATX9RfK">Discord</a> if you're interested in partnering with us. We'd be happy to hear from you!
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
