@@ -114,8 +114,8 @@ def view_one_server(server_id):
 	if (request.cookies.get('teamx_session')):
 		user = Session.GetUserBySession(main_session, request.cookies.get('teamx_session'))
 		if (user):
-			return render_template('view_server.html', title='Servers', user=user, server=server)
-	return render_template('view_server.html', title='Servers', user=None, server=server)
+			return render_template('view_server.html', title=server.name, user=user, server=server)
+	return render_template('view_server.html', title=server.name, user=None, server=server)
 
 
 @app.route('/logout')

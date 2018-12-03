@@ -1,52 +1,111 @@
 {% extends 'core.html' %}
 {% block content %}
 <link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet"/>
-<div class="container solid-background my-4">
+<link href="{{ url_for('static', filename='css/server_page.css') }}" rel="stylesheet"/>
+<div class="container marketing">
   <div class="row">
-    <div class="col-12">
-      <div class="alert alert-warning">
-      This page is not finished yet! Soon to come you'll be able to view recent patches, and the mods installed on each server
-      </div>
+    <h2 class="default-heading-1">{{server.name}}</h2>
+  </div>
+  <div class="row">
+    <div class="alert alert-primary col-12">
+      Please keep in mind that this is a WIP
     </div>
   </div>
   <div class="row">
-    <div class="col-12">
-      <div class="row">
-        <div class="col-3">
-          <img src="{{ url_for('static', filename=server.path_to_pic) }}" style="width: 100%;"/>
+    <div class="col-lg-4 col-md-12 col-sm-12 server-info-image-panel">
+      <div class="box">
+        <img src="{{ url_for('static', filename=server.path_to_pic) }}" class="servers-server-image"/>
+        <div class="box-item">Players: <span id="player_count">Contacting server...</span></div>
+      </div>
+    </div>
+    <div class="col-lg-8 col-md-12 col-sm-12 server-info-details-panel">
+      <h2 class="text-center">Details</h2>
+      <div class="box">
+        <div class="box-item">IP: {{server.address}}</div>
+        <div class="box-item">Pack: {% if server.path_to_technic != None and server.path_to_technic != ""%}<a href="{{server.path_to_technic}}">Modpack</a>{% else %}Vanilla{%endif%}</div>
+        <div class="box-item">MC Version: {{server.minecraft_version}}</div>
+        <div class="box-item">Version: ???</div>
+      </div>
+      <h2 class="text-center">Description</h2>
+      <div class="box">
+        <div class="box-item">
+          {{server.fulldesc}}
         </div>
-        <div class="col-9">
-          <div class="row">
-            <h2 class="col-12">
-              {{ server.name }}
-            </h2>
-            <h4 class="col-12">Description</h4>
-            <p class="col-12">
-              {{ server.fulldesc }}
-            </p>
-            <h4 class="col-12 my-3">
-              Basic info
-            </h4>
-            <div class="col-12">
-              Minecraft Version: <strong>{{server.minecraft_version}}</strong>
-              <br />
-              Server type:<strong>
-              {% if server.path_to_technic != None %}
-                Modded (Technic)
-              {% else %}
-                Vanilla
-              {% endif %}</strong>
-            </div>
-            <div class="col-12 my-3">
-              {% if server.path_to_technic %}
-                <a href="{{server.path_to_technic}}"><button class="btn btn-primary">Technic Modpack</button></a>
-              {% endif %}
-            </div>
+      </div>
+    </div>
+  </div>
+  <div class="row my-1">
+    <div class="col-12">
+      <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="mod-tab" data-toggle="tab" href="#mods" role="tab" aria-controls="Mods" aria-selected="true">Mods (121)</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="patch-tab" data-toggle="tab" href="#patches" role="tab" aria-controls="Patch list" aria-selected="false">Patch list</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="playtimes-tab" data-toggle="tab" href="#playtimes" role="tab" aria-controls="Hours logged" aria-selected="false">Hours logged</a>
+        </li>
+      </ul>
+      <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="mods" role="tabpanel" aria-labelledby="mod-tab">
+          <div class="box-item" style="border-right: 1px solid #444;border-left: 1px solid #444;">
+            <div class="float-left">Example Mod</div>
+            <div class="float-right">1.01 | <a href="#">Link</a></div>
+            &nbsp;
+          </div>
+        </div>
+        <div class="tab-pane fade" id="patches" role="tabpanel" aria-labelledby="patch-tab">
+          <div class="box-item" style="border-right: 1px solid #444;border-left: 1px solid #444;">
+            <div class="float-left">Example Patch</div>
+            <div class="float-right">1.00 | <a href="#">Link</a></div>
+            &nbsp;
+          </div>
+        </div>
+        <div class="tab-pane fade" id="playtimes" role="tabpanel" aria-labelledby="playtimes-tab">
+          <div class="box-item" style="border-right: 1px solid #444;border-left: 1px solid #444;">
+            <div class="float-left">Example Player</div>
+            <div class="float-right">5d, 3h, 10m, 20s</div>
+            &nbsp;
           </div>
         </div>
       </div>
     </div>
   </div>
+</div><!-- /.container -->
+<script>
+  var players;
+  var maxp;
 
-</div>
+  function get_players(){
+    $.get({
+      url: "/api/server/{{server.id}}/get_current_player_count",
+      type: "GET",
+      error: function(data){
+        alert(data.responseText);
+      },
+      success: function(data){
+        players = data;
+        get_max_players();
+      },
+    })
+  }
+  function get_max_players(){
+    $.get({
+      url: "/api/server/{{server.id}}/get_max_player_count",
+      type: "GET",
+      error: function(data){
+        alert(data.responseText);
+      },
+      success: function(data){
+        maxp = data;
+        set_widget();
+      },
+    })
+  }
+  function set_widget(){
+    $("#player_count").text(players+"/"+maxp);
+  }
+  get_players();
+</script>
 {% endblock %}
