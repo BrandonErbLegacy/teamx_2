@@ -114,8 +114,8 @@ def view_one_server(server_id):
 	if (request.cookies.get('teamx_session')):
 		user = Session.GetUserBySession(main_session, request.cookies.get('teamx_session'))
 		if (user):
-			return render_template('view_server.html', title=server.name, user=user, server=server)
-	return render_template('view_server.html', title=server.name, user=None, server=server)
+			return render_template('view_server.html', title=server.name, user=user, server=server, mods=server.GetMods(main_session), updates=server.GetUpdates(main_session))
+	return render_template('view_server.html', title=server.name, user=None, server=server, mods=server.GetMods(main_session), updates=server.GetUpdates(main_session))
 
 
 @app.route('/logout')
@@ -181,6 +181,8 @@ def admin_view_ticket(ticket_id):
 	ticket = Ticket.GetTicketById(main_session, ticket_id, user)
 	replies = Ticket.GetRepliesByTicket(main_session, ticket)
 	return render_template('admin/view_ticket.html', title="Ticket "+ticket.title, user=user, servers=Server.GetAll(main_session), ticket=ticket, replies=replies)
+
+
 
 ################################
 #####   Superuser Routes   #####
@@ -372,6 +374,31 @@ def api_give_user_admin():
 		User.GiveAdmin(main_session, user_id)
 	return "", 200
 
+@app.route('/api/create/mod_reference', methods=['POST'])
+@admin_endpoint
+def api_create_mod_reference():
+	try:
+		name = get_value_or_blank(request, "name")
+		version = get_value_or_blank(request, "version")
+		server_id = get_value_or_blank(request, "server_id")
+		Mod.AddMod(main_session, name, version, server_id)
+		return "", 200
+	except:
+		return "There was an error adding that mod", 500
+
+@app.route('/api/create/patch_reference', methods=['POST'])
+@admin_endpoint
+def api_create_patch_reference():
+	try:
+		title = get_value_or_blank(request, "title")
+		shortdesc = get_value_or_blank(request, "shortdesc")
+		fulldesc = get_value_or_blank(request, "fulldesc")
+		forserver = get_value_or_blank(request, "forserver")
+		server_id = get_value_or_blank(request, "fulldesc")
+		Patch.AddUpdate(main_session, title, shortdesc, fulldesc, forserver, server_id)
+		return "", 200
+	except:
+		return "There was an error adding that patch", 500
 ###############################
 #####  Utility Functions  #####
 ###############################

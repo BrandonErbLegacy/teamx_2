@@ -188,6 +188,12 @@ class Server(DatabaseBase):
 	def GetTopThree(session):
 		return session.query(Server).all()
 
+	def GetMods(self, session):
+		return Mod.GetModsByServer(session, self.id)
+
+	def GetUpdates(self, session):
+		return Update.GetUpdatesByServer(session, self.id)
+
 class ServerPlayerMapping(DatabaseBase):
 	__tablename__ = "MinecraftPlayers"
 	id = Column(String(36), primary_key=True)
@@ -379,30 +385,76 @@ class Mod(DatabaseBase):
 	id = Column(String(36), primary_key=True)
 	name = Column(String)
 	version = Column(String)
+	source = Column(String)
 	server_id = Column(String(36)) #User.id
-	def AddMod(name, version, server_object):
-		pass
+	date_updated = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
+
+	def AddMod(session, name, version, server_id):
+		server_object = session.query(Server).filter(Server.id == server_id).first()
+		if server_object != None:
+			mod = Mod()
+			mod.name = name
+			mod.version = version
+			mod.server_id = server_object.id
+			session.add(mod)
+			session.commit()
+
 	def EditListing(session, listing_id, version):
-		pass
+		listing = session.query(Mod).filter(Mod.id == listing_id).first()
+		if (listing != None):
+			listing.version = version
+			session.commit()
+
 	def RemoveListing(session, listing_id):
-		pass
+		listing = session.query(Mod).filter(Mod.id == listing_id).first()
+		if (listing != None):
+			session.remove(listing)
+			session.commit()
+
+	def GetModsByServer(session, server_id):
+		return session.query(Mod).filter(Mod.server_id == server_id).all()
 
 class Update(DatabaseBase):
 	__tablename__ = "Updates"
 	id = Column(String(36), primary_key=True)
 	title = Column(String)
-	desc = Column(String)
+	version = Column(String)
+	shortdesc = Column(String)
+	fulldesc = Column(String)
 	for_server = Column(Boolean(), default=False)
 	server_id = Column(String(36)) #User.id
+	date_created = Column(DateTime(timezone=True), server_default=func.now())
+	date_updated = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
 
-	def AddUpdate(session, title, desc, for_server, server_object):
-		pass
+	def AddUpdate(session, title, shortdesc, fulldesc, for_server, server_id):
+		update = Update()
+		update.title = title
+		update.shortdesc = shortdesc
+		update.fulldesc = fulldesc
+		update.for_server = for_server
+		update.server_id = server_id
+		session.add(update)
+		session.commit()
 
-	def UpdateUpdate(session, update_object, title, desc):
-		pass
+	def UpdateUpdate(session, update_id, title, shortdesc, fulldesc):
+		update = session.query(Update).filter(Update.id == update_id).first()
+		if (update != None):
+			update.title = title
+			update.shortdesc = shortdesc
+			update.fulldesc = fulldesc
+			session.commit()
 
-	def DeleteUpdate(session, update_object):
-		pass
+	def DeleteUpdate(session, update_id):
+		update = session.query(Update).filter(Update.id == update_id).first()
+		if (update != None):
+			session.remove(update)
+			session.commit()
+
+	def GetUpdatesByServer(session, server_id):
+		return session.query(Update).filter(Update.server_id == server_id).all()
+
+	def GetUpdatesForOther(session):
+		return session.query(Update).filter(Update.for_server == False).all()
 
 
 
