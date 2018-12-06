@@ -8,6 +8,7 @@ from sqlalchemy.sql import func
 
 from uuid import uuid4
 from hashlib import sha256
+import datetime
 DatabaseBase = declarative_base()
 
 class RecordExists(Exception):
@@ -132,11 +133,22 @@ class Session(DatabaseBase):
 	def GetUserBySession(session, session_id_or_object):
 		user_obj = None
 		try:
+			## Try to get the session_id by using session_id_or_object as a user object
 			user_obj = session.query(User).filter(User.id == session_id_or_object.user_id).first()
 		except:
+			## Try to get the session by using the session_id_or_object as a session_id
 			session_obj = session.query(Session).filter(Session.id == session_id_or_object).first()
 			user_obj = session.query(User).filter(User.id == session_obj.user_id).first()
-		return user_obj
+		if session_obj.is_expired:
+			print("User attempted to use an expired token: "+user_obj.username)
+			return None
+		if session_obj.date_registered < datetime.datetime.now()-datetime.timedelta(hours=6):
+			session_obj.is_expired = True
+			session.commit()
+			print("The user session has expired for: "+user_obj.username)
+			return None
+		else:
+			return user_obj
 
 class Server(DatabaseBase):
 	__tablename__ = "Servers"
