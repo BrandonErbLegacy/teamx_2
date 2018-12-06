@@ -25,6 +25,18 @@
         <div class="box-item">Pack: {% if server.path_to_technic != None and server.path_to_technic != ""%}<a href="{{server.path_to_technic}}">Modpack</a>{% else %}Vanilla{%endif%}</div>
         <div class="box-item">MC Version: {{server.minecraft_version}}</div>
         <div class="box-item">Version: ???</div>
+				{% if user.is_admin or user.is_superuser %}
+					<div class="box-item">
+						<div class="row">
+							<div class="col-6">
+								<button class="btn btn-primary col-12"  data-toggle="modal" data-target="#create-server-modal">Add Mod</button>
+							</div>
+							<div class="col-6">
+								<button class="btn btn-primary col-12"  data-toggle="modal" data-target="#create-server-modal">Add Update</button>
+							</div>
+						</div>
+					</div>
+				{% endif %}
       </div>
       <h2 class="text-center">Description</h2>
       <div class="box">
@@ -128,4 +140,48 @@
   }
   get_players();
 </script>
+{% if user.is_admin or user.is_superuser %}
+<!-- JavaScript and Admin modals for adding mods/patches -->
+<div class="modal" id="create-server-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Required Info</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <p class="alert bg-danger d-none my-2" id="server-modal-error">
+          Error message here
+        </p>
+        <form>
+          <div class="form-group">
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text uniform-form-prepend" id="mod_name_ig">Mod Name</span>
+              </div>
+              <input type="text" class="form-control bg-light text-dark" aria-label="Mod Name" aria-describedby="mod_name_ig" id="mod_name" placeholder="Sweet Mod">
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="modal_create_and_close_button">Create and close</button>
+				<button type="button" class="btn btn-primary" id="modal_create_and_add_button">Create and add another</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script>
+
+</script>
+
+{% endif %}
 {% endblock %}
