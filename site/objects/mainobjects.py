@@ -142,7 +142,7 @@ class Session(DatabaseBase):
 		session.add(user_session)
 
 		session.commit()
-		return user_sessiond
+		return user_session
 
 	def GetUserBySession(session, session_id_or_object):
 		user_obj = None
