@@ -13,11 +13,31 @@ DatabaseBase = declarative_base()
 
 class RecordExists(Exception):
 	def __init__(self, message, field):
-
 		# Call the base class constructor with the parameters it needs
 		super(RecordExists, self).__init__(message)
-
 		self.field = field
+
+class NoRecordExists(Exception):
+	def __init__(self, message, field):
+		# Call the base class constructor with the parameters it needs
+		super(NoRecordExists, self).__init__(message)
+		self.field = field
+
+class AuthException(Exception):
+	def __init__(self, message):
+		# Call the base class constructor with the parameters it needs
+		super(AuthException, self).__init__()
+
+class InvalidSession(Exception):
+	def __init__(self, message):
+		# Call the base class constructor with the parameters it needs
+		super(InvalidSession, self).__init__()
+
+class Blacklisted(Exception):
+	def __init__(self, message):
+		# Call the base class constructor with the parameters it needs
+		super(Blacklisted, self).__init__()
+
 
 class User(DatabaseBase):
 	__tablename__ = "Users"
@@ -122,13 +142,7 @@ class Session(DatabaseBase):
 		session.add(user_session)
 
 		session.commit()
-		return user_session
-
-	def ValidateSession(session, session_object, ip_address):
-		pass
-
-	def DeleteSession(session, session_object):
-		pass
+		return user_sessiond
 
 	def GetUserBySession(session, session_id_or_object):
 		user_obj = None
@@ -468,16 +482,6 @@ class Update(DatabaseBase):
 	def GetUpdatesForOther(session):
 		return session.query(Update).filter(Update.for_server == False).all()
 
-
-
-
-
-
-
-
-
-
-
 ## Utility Functions ##
 def new_uuid():
 	return str(uuid4())
@@ -490,5 +494,8 @@ def new_uuid():
 
 
 
-
+#######################################################
 #################### End of File ######################
+#######################################################
+## This was added to make editing on a laptop nicer  ##
+#######################################################
