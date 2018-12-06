@@ -197,8 +197,21 @@ class ServerPlayerMapping(DatabaseBase):
 	server_id = Column(String(36)) #User.id
 	date_joined = Column(DateTime(timezone=True), server_default=func.now())
 
-	def AddUserAccount(session, user_obj, mapping):
-		pass
+	def AddUserAccount(session, username, password, server_id, mc_guid):
+		spm = session.query(ServerPlayerMapping).filter(ServerPlayerMapping.server_id == server_id).filter(ServerPLayerMapping.minecraft_guid == mc_guid).first()
+		if spm != None:
+			target_user = session.query(User).filter(User.username == username).first()
+			if (target_user == None):
+				return "No matching records found"
+			hashed_password = sha256((target_user.salt+password).encode("utf-8")).hexdigest()
+			if hashed_password == target_user.password:
+				spm.user_id = target_user.id
+				session.commit()
+				return "Linking successful"
+			else:
+				return "No matching records found"
+		else:
+			return "There is no matching account"
 
 class ServerActivityLog(DatabaseBase):
 	__tablename__ = "ServerActivityLogs"
@@ -369,6 +382,10 @@ class Mod(DatabaseBase):
 	server_id = Column(String(36)) #User.id
 	def AddMod(name, version, server_object):
 		pass
+	def EditListing(session, listing_id, version):
+		pass
+	def RemoveListing(session, listing_id):
+		pass
 
 class Update(DatabaseBase):
 	__tablename__ = "Updates"
@@ -378,13 +395,13 @@ class Update(DatabaseBase):
 	for_server = Column(Boolean(), default=False)
 	server_id = Column(String(36)) #User.id
 
-	def AddUpdate(title, desc, for_server, server_object):
+	def AddUpdate(session, title, desc, for_server, server_object):
 		pass
 
-	def UpdateUpdate(update_object, title, desc):
+	def UpdateUpdate(session, update_object, title, desc):
 		pass
 
-	def DeleteUpdate(update_object):
+	def DeleteUpdate(session, update_object):
 		pass
 
 
