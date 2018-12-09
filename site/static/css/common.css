@@ -27,6 +27,9 @@ select {
  }
 .card-img-custom{
   height: 200px;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
  }
 .card-playercount {
   margin-top: 158px; /* Magic numbers are bad. Fix this later */
