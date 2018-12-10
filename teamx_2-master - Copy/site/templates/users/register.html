@@ -1,0 +1,209 @@
+{% extends "core.html" %}
+
+{% block content %}
+<link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet"/>
+<div class="form-wrapper container">
+    <div class="row my-3">
+      <div class="col-8" style="background-color: #303030 !important; padding: 5px;">
+        <div class="col-12 text-center">
+          <h2>Register Form</h2>
+        </div>
+        <hr/>
+        <h4 class="col-12">Personal Details</h4>
+        <h6 class="mb-2 text-muted col-12">We don't share these details, and never will</h6>
+        <div class="col-12">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text uniform-form-prepend" id="first_name_ig">First Name</span>
+            </div>
+            <input type="text" class="form-control bg-light text-dark" aria-label="First Name" aria-describedby="first_name_ig" id="first_name" placeholder="Type your name here">
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text uniform-form-prepend" id="email_ig">Email</span>
+            </div>
+            <input type="email" class="form-control bg-light text-dark" aria-label="Email" aria-describedby="email_ig" id="email" placeholder="Type your email here">
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text uniform-form-prepend" id="display_name_ig">Display Name</span>
+            </div>
+            <input type="text" class="form-control bg-light text-dark" aria-label="Display Name" aria-describedby="display_name_ig" id="display_name" placeholder="Type your display name here">
+          </div>
+        </div>
+        <hr>
+        <h4 class="col-12">Account Details</h4>
+        <h6 class="mb-2 text-muted col-12">These will be your sign in details</h6>
+        <div class="col-12">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text uniform-form-prepend" id="username_ig">Username</span>
+            </div>
+            <input type="text" class="form-control bg-light text-dark" aria-label="Username" aria-describedby="username_ig" id="username" placeholder="Type your username here">
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text uniform-form-prepend" id="password_ig">Password</span>
+            </div>
+            <input type="password" class="form-control bg-light text-dark" aria-label="Passsword" aria-describedby="password_ig" id="password" placeholder="Type your password here">
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text uniform-form-prepend" id="confirmpassword_ig">Confirm Password</span>
+            </div>
+            <input type="password" class="form-control bg-light text-dark" aria-label="Confirm Password" aria-describedby="confirmpassword_ig" id="confirmpassword" placeholder="Confirm your password">
+          </div>
+        </div>
+        <hr>
+        <h4 class="col-12">Additional info</h4>
+        <h6 class="mb-2 text-muted col-12">We automatically collect the following details as well</h6>
+        <div class="col-12">
+          <ul>
+            <li>The date you registered (for community rewards)</li>
+            <li>The date you were last seen in our community (for analytics, and community rewards)</li>
+            <li>Your IP address (for keeping your accounts secure)</li>
+          </ul>
+        </div>
+        <hr>
+        <div class="alert alert-danger my-2 d-none" role="alert" id="error">
+          Insert message here
+        </div>
+        <input type="submit" value="Register" class="btn btn-primary col-12" onclick="can_register();"/>
+      </div>
+      <div class="col-4">
+        <div class="col-12" style="background-color: #303030 !important; padding: 5px;">
+          <h2 class="text-center col-12">Benefits</h2>
+          <hr />
+          <h6 class="mb-2 col-12">By joining us you get access to the following: </h6>
+          <div class="col-12">
+            <ul>
+              <li>Access to all servers</li>
+              <li>Helpful resources</li>
+              <li>An extremely friendly community</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+<script>
+  //Pre login validation
+  var username_field = $("#username");
+  var password_field = $("#password");
+  var password_confirm_field = $("#confirmpassword");
+  var first_name_field = $("#first_name");
+  var display_name_field = $("#display_name");
+  var email_field = $("#email");
+
+  username_field.keypress(function(event){
+    if (event.keyCode == 13){
+      can_register(null);
+    }
+  });
+  password_field.keypress(function(event){
+    if (event.keyCode == 13){
+      can_register(null);
+    }
+  });
+  password_confirm_field.keypress(function(event){
+    if (event.keyCode == 13){
+      can_register(null);
+    }
+  });
+  first_name_field.keypress(function(event){
+    if (event.keyCode == 13){
+      can_register(null);
+    }
+  });
+  display_name_field.keypress(function(event){
+    if (event.keyCode == 13){
+      can_register(null);
+    }
+  });
+  email_field.keypress(function(event){
+    if (event.keyCode == 13){
+      can_register(null);
+    }
+  });
+
+  function can_register(event){
+    var error = $("#error");
+
+    var username = username_field.val();
+    var password = password_field.val();
+    var password2 = password_confirm_field.val();
+    var first_name = first_name_field.val();
+    var display_name = display_name_field.val();
+    var email = email_field.val();
+    if (username == ""){
+      set_error_text("You must enter a username");
+      return;
+    }
+    if (password == ""){
+      set_error_text("You must enter a password");
+      return false;
+    }
+    if (password2 == ""){
+      set_error_text("You must confirm your password");
+      return false;
+    }
+    if (first_name == ""){
+      set_error_text("You must enter a name");
+      return false;
+    }
+    if (display_name == ""){
+      set_error_text("You must enter a display name");
+      return false;
+    }
+    if (email == ""){
+      set_error_text("You must enter an email");
+      return false;
+    }
+    if (password != password2){
+      set_error_text("Your password and the confirmation password must match");
+      return false;
+    }
+    if (password.length < 5){
+      set_error_text("Your password must be at least 5 characters in length");
+      return false;
+    }
+    if (username.length < 3){
+      set_error_text("Your username must be at least 3 characters in length");
+      return false;
+    }
+    $.post({
+      url: "api/create/user",
+      type: "POST",
+      error: function(data){
+        error.text(data.responseText);
+        error.removeClass("d-none");
+      },
+      success: function(data){
+        document.cookie = "teamx_session="+data;
+        document.location = "/welcome";
+      },
+      data: {
+        "username": username,
+        "password": password,
+        "display_name": display_name,
+        "email": email,
+        "first_name": first_name
+      }
+    })
+  }
+  function set_error_text(text){
+    var error = $("#error");
+    error.text(text);
+    error.removeClass("d-none");
+  }
+
+</script>
+{% endblock %}

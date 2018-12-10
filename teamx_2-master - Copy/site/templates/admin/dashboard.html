@@ -1,0 +1,230 @@
+{% extends "admin/admin_core.html" %}
+
+{% block admin_content %}
+<div class="container my-2">
+  <div class="row">
+    <div class="col-12 alert bg-danger d-none" id="error-banner">
+      There was a serious error
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12 alert bg-primary d-none" id="info-banner">
+      There are pending tickets in the <a href="/admin/tickets">ticket resolution center</a>
+    </div>
+  </div>
+  <div class="row">
+    <h2 class="col-12">Host 1 Hardware</h2>
+  </div>
+  <div class="row">
+    <div class="col-6">
+      <div class="card-wrapper">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">CPU Usage</h5>
+            <h6 class="card-subtitle mb-2 text-muted">The current CPU load of the host (includes everything running)</h6>
+            <h1 class="d-none text-center py-5" id="admin-stat-cpu">
+              0.0%
+            </h1>
+            <div id="admin-stat-cpu-loader">
+              <p class="card-text">
+                Loading current CPU usage. Please wait...
+              </p>
+              <div class="progress">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="card-wrapper">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">RAM Usage</h5>
+            <h6 class="card-subtitle mb-2 text-muted">The current RAM usage of the host (includes everything)</h6>
+            <h1 class="d-none text-center py-5" id="admin-stat-ram">
+              0.0%
+            </h1>
+            <div id="admin-stat-ram-loader">
+              <p class="card-text">
+                Loading current CPU usage. Please wait...
+              </p>
+              <div class="progress">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <h2 class="col-12 my-2">Analytics</h2>
+  </div>
+  <div class="row">
+    <div class="col-6">
+      <div class="card-wrapper">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Max number of players per day</h5>
+            <h6 class="card-subtitle mb-2 text-muted">This is aggregated from all servers</h6>
+            <p class="card-text">Insert graph here</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="card-wrapper">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Average number of players per hour</h5>
+            <h6 class="card-subtitle mb-2 text-muted">This is aggregated from all servers</h6>
+            <p class="card-text">Insert graph here</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-6">
+      <div class="card-wrapper">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">New accounts per day</h5>
+            <h6 class="card-subtitle mb-2 text-muted">This is number of accounts created within 30 days</h6>
+            <p class="card-text">Insert graph here</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="card-wrapper">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Average play time per day</h5>
+            <h6 class="card-subtitle mb-2 text-muted">This is aggregated from all servers</h6>
+            <p class="card-text">Insert graph here</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+var warning_level_cpu = 50;
+var warning_level_ram = 40;
+var critical_level_cpu = 70;
+var critical_level_ram = 70;
+
+function set_error(val){
+  $("#error-banner").html(val);
+  $("#error-banner").removeClass("d-none");
+}
+function set_info(val){
+  $("#info-banner").html(val);
+  $("#info-banner").removeClass("d-none");
+}
+
+function hide_error(){
+  $("#error-banner").addClass("d-none");
+}
+function hide_info(){
+  $("#info-banner").addClass("d-none");
+}
+
+function fetch_ram_usage(){
+  $.get({
+    url: "/api/fetch/memory_usage",
+    type: "GET",
+    error: function(data){
+      set_error("There was an error contacting the server: "+data.responseText);
+    },
+    success: function(data){
+      $("#admin-stat-ram").text(data+"%");
+      $("#admin-stat-ram").removeClass("d-none");
+      $("#admin-stat-ram-loader").remove();
+      if (data > critical_level_ram) {
+        $("#admin-stat-ram").removeClass("text-warning");
+        $("#admin-stat-ram").removeClass("text-success");
+        $("#admin-stat-ram").addClass("text-danger");
+      } else {
+        if (data > warning_level_ram){
+          $("#admin-stat-ram").removeClass("text-danger");
+          $("#admin-stat-ram").removeClass("text-success");
+          $("#admin-stat-ram").addClass("text-warning");
+        } else {
+          $("#admin-stat-ram").removeClass("text-warning");
+          $("#admin-stat-ram").removeClass("text-danger");
+          $("#admin-stat-ram").addClass("text-success");
+        }
+      }
+    }
+  })
+}
+function fetch_cpu_usage(){
+  $.get({
+    url: "/api/fetch/cpu_usage",
+    type: "GET",
+    error: function(data){
+      set_error("There was an error contacting the server: "+data.responseText);
+    },
+    success: function(data){
+      $("#admin-stat-cpu").text(data+"%");
+      $("#admin-stat-cpu").removeClass("d-none");
+      $("#admin-stat-cpu-loader").remove();
+      if (data > critical_level_cpu) {
+        $("#admin-stat-cpu").removeClass("text-warning");
+        $("#admin-stat-cpu").removeClass("text-success");
+        $("#admin-stat-cpu").addClass("text-danger");
+      } else {
+        if (data > warning_level_cpu){
+          $("#admin-stat-cpu").removeClass("text-danger");
+          $("#admin-stat-cpu").removeClass("text-success");
+          $("#admin-stat-cpu").addClass("text-warning");
+        } else {
+          $("#admin-stat-cpu").removeClass("text-warning");
+          $("#admin-stat-cpu").removeClass("text-danger");
+          $("#admin-stat-cpu").addClass("text-success");
+        }
+      }
+    }
+  })
+}
+function check_if_tickets_open(){
+  $.get({
+    url: "/api/fetch/number_open_tickets",
+    type: "GET",
+    error: function(data){
+      set_error("There was an error contacting the server: "+data.responseText);
+    },
+    success: function(data){
+      if (data >= 1){
+        set_info("There are "+data+" pending tickets in the <a href=\"/admin/tickets\">ticket resolution center</a>")
+      } else {
+        hide_info();
+      }
+    }
+  })
+}
+
+function update_server_stats(){
+  fetch_ram_usage();
+  fetch_cpu_usage();
+  setTimeout(update_server_stats, 2000);
+}
+function update_open_ticket_count(){
+  check_if_tickets_open();
+  setTimeout(update_open_ticket_count, 60000);
+}
+
+function start_updaters(){
+  update_server_stats();
+  update_open_ticket_count();
+}
+start_updaters();
+
+
+</script>
+
+{% endblock admin_content %}
