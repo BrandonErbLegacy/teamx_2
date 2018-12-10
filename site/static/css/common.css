@@ -28,6 +28,7 @@ select {
 .card-img-custom{
   height: 200px;
   background-position: center;
+  width: 100%;
   background-size: contain;
   background-repeat: no-repeat;
  }
