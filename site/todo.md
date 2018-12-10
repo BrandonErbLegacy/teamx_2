@@ -3,6 +3,7 @@
 * Rate limiting needs to be added to crucial forms (maybe even all endpoints)
 * Automatic black listing needs to be added based on rules (such as number of invalid requests in x timeframe)
 * Somewhat more clean code
+* CSRF Tokens should be added to forms
 
 # Things that would be nice to have before launch
 * A 404 Page: Page not found
