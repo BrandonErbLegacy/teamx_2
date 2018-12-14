@@ -415,12 +415,14 @@ class Mod(DatabaseBase):
 	server_id = Column(String(36)) #User.id
 	date_updated = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
 
-	def AddMod(session, name, version, server_id):
+	def AddMod(session, name, version, source, server_id):
 		server_object = session.query(Server).filter(Server.id == server_id).first()
 		if server_object != None:
 			mod = Mod()
+			mod.id = new_uuid()
 			mod.name = name
 			mod.version = version
+			mod.source = source
 			mod.server_id = server_object.id
 			session.add(mod)
 			session.commit()
@@ -452,8 +454,10 @@ class Update(DatabaseBase):
 	date_created = Column(DateTime(timezone=True), server_default=func.now())
 	date_updated = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
 
-	def AddUpdate(session, title, shortdesc, fulldesc, for_server, server_id):
+	def AddUpdate(session, title, version, shortdesc, fulldesc, for_server, server_id):
 		update = Update()
+		update.id = new_uuid()
+		update.version = version
 		update.title = title
 		update.shortdesc = shortdesc
 		update.fulldesc = fulldesc

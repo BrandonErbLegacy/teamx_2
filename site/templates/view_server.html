@@ -36,7 +36,7 @@
 								<button class="btn btn-primary col-12"  data-toggle="modal" data-target="#create-mod-modal">Add Mod</button>
 							</div>
 							<div class="col-6">
-								<button class="btn btn-primary col-12"  data-toggle="modal" data-target="#create-update-modal">Add Update</button>
+								<button class="btn btn-primary col-12"  data-toggle="modal" data-target="#create-update-modal">Add Update/Patch</button>
 							</div>
 						</div>
 					</div>
@@ -227,9 +227,15 @@
             </div>
             <div class="input-group mb-3">
               <div class="input-group-prepend">
-                <span class="input-group-text uniform-form-prepend" id="update_changes_ig">Changes</span>
+                <span class="input-group-text uniform-form-prepend" id="update_changes_ig">Short desc</span>
               </div>
-              <textarea class="form-control bg-light text-dark" aria-label="Full Description" aria-describedby="update_changes_ig" id="update_changes" placeholder="Full description of what was changed"></textarea>
+              <textarea class="form-control bg-light text-dark" aria-label="Short Description" aria-describedby="update_changes_ig" id="short_update_changes" placeholder="Short description of what was changed"></textarea>
+            </div>
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text uniform-form-prepend" id="full_update_changes_ig">Full desc</span>
+              </div>
+              <textarea class="form-control bg-light text-dark" aria-label="Full Description" aria-describedby="full_update_changes_ig" id="long_update_changes" placeholder="Full description of what was changed"></textarea>
             </div>
           </div>
         </form>
@@ -246,17 +252,139 @@
   </div>
 </div>
 <script>
-  function validate_mod(){
+  var mod_create_close_btn = $("#mod_modal_create_and_close_button");
+  var mod_create_add_btn = $("#mod_modal_create_and_add_button");
 
+  var update_create_close_btn = $("#update_modal_create_and_close_button");
+  var update_create_add_btn = $("#update_modal_create_and_add_button");
+
+  var mod_name_input = $("#mod_name");
+  var mod_version_input = $("#mod_version");
+  var mod_link_input = $("#mod_link");
+
+  var update_name_input = $("#update_name");
+  var update_version_input = $("#update_version");
+  var short_update_changes_input = $("#short_update_changes");
+  var long_update_changes_input = $("#long_update_changes");
+
+  let server_id = "{{server.id}}";
+
+  var mod_modal_error = $("#mod-modal-error");
+  var update_modal_error = $("#update-modal-error");
+
+  mod_create_close_btn.click(function(){
+    validate_mod(function(){
+      reset_mod_modal();
+      $("#create-mod-modal").modal("hide");
+      document.location = document.location;
+    });
+  });
+  update_create_close_btn.click(function(){
+    validate_patch(function(){
+      reset_update_modal();
+      $("#create-update-modal").modal("hide");
+      document.location = document.location;
+    });
+  });
+
+  mod_create_add_btn.click(function(){
+    validate_mod(reset_mod_modal);
+  });
+  update_create_add_btn.click(function(){
+    validate_patch(reset_update_modal);
+  });
+
+  function set_mod_error(val){
+    mod_modal_error.removeClass("d-none");
+    mod_modal_error.text(val);
   }
-  function validate_update(){
 
+  function set_patch_error(val){
+    update_modal_error.removeClass("d-none");
+    update_modal_error.text(val);
   }
-  function register_mod(){
 
+  function reset_mod_modal(){
+    mod_name_input.val("");
+    mod_version_input.val("");
+    mod_link_input.val("");
+    mod_modal_error.addClass("d-none");
   }
-  function register_update(){
 
+  function reset_update_modal(){
+    update_name_input.val("");
+    update_version_input.val("");
+    short_update_changes_input.val("");
+    long_update_changes_input.val("");
+    update_modal_error.addClass("d-none");
+  }
+
+  function validate_patch(continue_func){
+    let name = update_name_input.val();
+    let version = update_version_input.val();
+    let short_desc = short_update_changes_input.val();
+    let long_desc = long_update_changes_input.val();
+
+    if (name == "" || version == "" || short_desc == "" || long_desc == ""){
+      set_patch_error("All fields are required");
+      return;
+    }
+    if (name.length < 4 || version.length < 2 || short_desc.length < 4 || long_desc.length < 20){
+      set_patch_error("Names must be 4 characters or more. Versions must be 2 or more. Short descriptions must be 4 or more. Long ones must be 20 or more");
+      return;
+    }
+
+    $.post({
+      url: "/api/create/patch_reference",
+      type: "POST",
+      error: function(data){
+        set_patch_error(data.responseText);
+      },
+      success: function(data){
+        console.log("Success!");
+        continue_func();
+      },
+      data: {
+        "title":name,
+        "version":version,
+        "short_desc":short_desc,
+        "long_desc":long_desc,
+        "forserver":true,
+        "server_id":server_id
+      }
+    });
+  }
+  function validate_mod(continue_func){
+    let name = mod_name_input.val();
+    let version = mod_version_input.val();
+    let link = mod_link_input.val();
+
+    if (name == "" || version == "" || link == ""){
+      set_mod_error("All fields are required");
+      return;
+    }
+    if (name.length < 4 || version.length < 2 || link.length < 4){
+      set_mod_error("Names must be 4 characters or more. Versions must be 2 or more. Links must be 4 or more");
+      return;
+    }
+
+    $.post({
+      url: "/api/create/mod_reference",
+      type: "POST",
+      error: function(data){
+        set_mod_error(data.responseText);
+      },
+      success: function(data){
+        console.log("Success!");
+        continue_func();
+      },
+      data: {
+        "name":name,
+        "version":version,
+        "link":link,
+        "server_id":server_id
+      }
+    });
   }
 </script>
 {% endif %}

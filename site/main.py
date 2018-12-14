@@ -380,8 +380,9 @@ def api_create_mod_reference():
 	try:
 		name = get_value_or_blank(request, "name")
 		version = get_value_or_blank(request, "version")
+		link = get_value_or_blank(request, "link")
 		server_id = get_value_or_blank(request, "server_id")
-		Mod.AddMod(main_session, name, version, server_id)
+		Mod.AddMod(main_session, name, version, link, server_id)
 		return "", 200
 	except:
 		return "There was an error adding that mod", 500
@@ -391,11 +392,16 @@ def api_create_mod_reference():
 def api_create_patch_reference():
 	try:
 		title = get_value_or_blank(request, "title")
-		shortdesc = get_value_or_blank(request, "shortdesc")
-		fulldesc = get_value_or_blank(request, "fulldesc")
+		version = get_value_or_blank(request, "version")
+		shortdesc = get_value_or_blank(request, "short_desc")
+		fulldesc = get_value_or_blank(request, "long_desc")
 		forserver = get_value_or_blank(request, "forserver")
-		server_id = get_value_or_blank(request, "fulldesc")
-		Patch.AddUpdate(main_session, title, shortdesc, fulldesc, forserver, server_id)
+		if (forserver == "true"):
+			forserver = True
+		else:
+			forserver = False
+		server_id = get_value_or_blank(request, "server_id")
+		Update.AddUpdate(main_session, title, version, shortdesc, fulldesc, forserver, server_id)
 		return "", 200
 	except:
 		return "There was an error adding that patch", 500
