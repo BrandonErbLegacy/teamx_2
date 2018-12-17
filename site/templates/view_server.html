@@ -82,7 +82,7 @@
       <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade {% if mods|length > 0%}show active{%endif%}" id="mods" role="tabpanel" aria-labelledby="mod-tab">
            {% for mod in mods %}
-            <div class="box-item" style="border-right: 1px solid #444;border-left: 1px solid #444;">
+            <div class="box-item solid-background" style="border-right: 1px solid #444;border-left: 1px solid #444;">
               <div class="float-left">{{mod.name}}</div>
               <div class="float-right">{{mod.version}} | <a href="{{mod.source}}">Link</a></div>
               &nbsp;
@@ -91,7 +91,7 @@
         </div>
         <div class="tab-pane fade {% if mods|length == 0 and updates|length > 0 %}show active {%endif%}" id="patches" role="tabpanel" aria-labelledby="patch-tab">
           {% for update in updates %}
-            <div class="box-item" style="border-right: 1px solid #444;border-left: 1px solid #444;">
+            <div class="box-item solid-background" style="border-right: 1px solid #444;border-left: 1px solid #444;">
               <div class="float-left">{{update.title}}  -  {{update.shortdesc}}</div>
               <div class="float-right">{{update.version}} | {{update.date_updated}} | <a href="#">Link</a></div>
               &nbsp;
@@ -99,7 +99,7 @@
           {%endfor%}
         </div>
         <div class="tab-pane fade {% if mods|length == 0 and updates|length == 0 %}show active {%endif%}" id="playtimes" role="tabpanel" aria-labelledby="playtimes-tab">
-          <div class="box-item" style="border-right: 1px solid #444;border-left: 1px solid #444;">
+          <div class="box-item solid-background" style="border-right: 1px solid #444;border-left: 1px solid #444;">
             <div class="float-left">Example Player</div>
             <div class="float-right">5d, 3h, 10m, 20s</div>
             &nbsp;

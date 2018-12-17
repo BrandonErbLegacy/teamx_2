@@ -55,3 +55,6 @@
 .padded-paragraph {
   padding: 10px;
 }
+.active {
+  background-color: #303030 !important;
+}
